@@ -3,13 +3,10 @@ This repo is done for the purpose of implementing the modelling workflow based o
 # General workflow for the modeling:
 model96 -> hprep96 -> hspec96 -> hpulse96 -> file96
 
-The program hprep96 creates a data file hspec96.dat
-for use by hspec96 to create the Green’s functions in the
-ω -distance space. The output of this program is a binary
-file, hspec96.grn, which is used by hpulse96 to convolve
-the response with the source time function to create file96
-Green’s function time histories.
 
+The program hprep96 creates a data file hspec96.dat for use by hspec96 to create the Green’s functions in the ω -distance space. The output of this program is a binary file, hspec96.grn, which is used by hpulse96 to convolve the response with the source time function to create file96 Green’s function time histories.
+
+After Hpulse96 I need to specify Focal Mechanism Parameters.
 
 # HPREP96
 hprep96 [flags], where the command flags are
@@ -33,3 +30,18 @@ The program requires the hspec96.dat file created by hprep96(VI). The program ou
 
 hspec96 [flags], where the command flags are
 ## suggested usage: hspec96 > hspec.out
+
+#HPULSE96
+hpulse96
+The program requires the hspec96.grn file created by hspec96(V) and optionally the source pulse definition file "rfile". The program output is on stdout and is a time series in file96(V) format. Program control is through the command line:
+
+hpulse96 [flags], where the command flags are
+-t Triangular pulse of base 2 L dt
+-p Parabolic Pulse of base 4 L dt
+-l L Source duration factor for the parabolic and triangular pulses.
+-a alpha Shape parameter for Ohnaka pulse
+-D Output is ground displacement
+-V Output is ground velocity (default)
+-A Output is ground acceleration
+-F rfile User supplied pulse
+-m mult Multiplier (default 1.0)
