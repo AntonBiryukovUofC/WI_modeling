@@ -45,3 +45,23 @@ hpulse96 [flags], where the command flags are
 -A Output is ground acceleration
 -F rfile User supplied pulse
 -m mult Multiplier (default 1.0)
+
+#FMECH96
+fmech96 [flags], where the command flags are
+-D dip dip of fault plane
+-S Strike strike of fault plane
+-R Rake slip angle on fault plane
+-M0 Moment (def=1.0) Seismic moment in units of dyne-cm
+-MW mw Moment magnitude
+-E Explosion
+-A Az Source to Station Azimuth ?
+-B Baz (def=0) Station to Source azimuth ?
+-ROT
+Force the three component time histories to be vertical, radial and transverse
+instead of vertical, north, and east. Since the Green’s functions are already vertical,
+radial, and transverse, the value of the back-azimuth is not used.
+-fx FX -fy Fy -fZ fz
+Point force amplitudes (N,E,down) in units of dynes
+-XX Mxx -YY Myy -ZZ Mzz -XY Mxy -XZ Mxz -YZ Myz  Moment tensor elements in units of dyne-cm
+The relation between seismic moment, M 0 , and moment magnitude, M W used is
+log 10 M 0 =1. 5M W +16. 05
