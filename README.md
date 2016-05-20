@@ -10,17 +10,23 @@ After Hpulse96 I need to specify Focal Mechanism Parameters.
 
 # HPREP96
 hprep96 [flags], where the command flags are
+
 -M model 	Name of earth model file.
+
 -d dfile	Name of distance file
 
 -FHS srcdep  Name of source depth file
+
 -FHR recdep  Name of receiver depth file
 
 -TF (default true ) top surface is free
+
 -BH (default true ) bottom surface is halfspace
+
 -ALL (default true ) Compute all Green’s functions
 
 -EQEX (default false) Compute earthquake/explosion Green’s functions
+
 -EQF (default false) Compute explosion/point force Green’s functions
 
 Creates a datafile hspec96.dat
@@ -29,6 +35,7 @@ Creates a datafile hspec96.dat
 The program requires the hspec96.dat file created by hprep96(VI). The program output is on stdout and on a binary file hspec96.grn.
 
 hspec96 [flags], where the command flags are
+
 ## suggested usage: hspec96 > hspec.out
 
 #HPULSE96
@@ -36,32 +43,53 @@ hpulse96
 The program requires the hspec96.grn file created by hspec96(V) and optionally the source pulse definition file "rfile". The program output is on stdout and is a time series in file96(V) format. Program control is through the command line:
 
 hpulse96 [flags], where the command flags are
+
 -t Triangular pulse of base 2 L dt
+
 -p Parabolic Pulse of base 4 L dt
+
 -l L Source duration factor for the parabolic and triangular pulses.
+
 -a alpha Shape parameter for Ohnaka pulse
+
 -D Output is ground displacement
+
 -V Output is ground velocity (default)
+
 -A Output is ground acceleration
+
 -F rfile User supplied pulse
+
 -m mult Multiplier (default 1.0)
 
 #FMECH96
 fmech96 [flags], where the command flags are
+
 -D dip dip of fault plane
+
 -S Strike strike of fault plane
+
 -R Rake slip angle on fault plane
+
 -M0 Moment (def=1.0) Seismic moment in units of dyne-cm
+
 -MW mw Moment magnitude
+
 -E Explosion
+
 -A Az Source to Station Azimuth ?
+
 -B Baz (def=0) Station to Source azimuth ?
+
 -ROT
+
 Force the three component time histories to be vertical, radial and transverse
 instead of vertical, north, and east. Since the Green’s functions are already vertical,
 radial, and transverse, the value of the back-azimuth is not used.
--fx FX -fy Fy -fZ fz
-Point force amplitudes (N,E,down) in units of dynes
+
+-fx FX -fy Fy -fZ fz Point force amplitudes (N,E,down) in units of dynes 
+
 -XX Mxx -YY Myy -ZZ Mzz -XY Mxy -XZ Mxz -YZ Myz  Moment tensor elements in units of dyne-cm
+
 The relation between seismic moment, M 0 , and moment magnitude, M W used is
 log 10 M 0 =1. 5M W +16. 05
