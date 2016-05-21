@@ -5,15 +5,17 @@ fname = 'VpVs.dat'
 with open(fname) as f:
     layers = f.readlines()
 layers.pop(0)
-y=np.zeros((len(layers),len(str.split(layers[0]))))
+y=np.zeros((len(layers),4+len(str.split(layers[0]))))
 
 i=0;
 for line in layers:
-    y[i,]=np.asarray(str.split(line)).astype(np.float)
+    y[i,]=np.hstack((np.asarray(str.split(line)).astype(np.float),[0,0,1,1]))
     i+=1
 if len(layers)>1:
     layer_thickness = np.hstack((y[0,0], y[1:y.shape[0],0]-y[0:y.shape[0]-1,0]))
+    
 y[:,0] = layer_thickness
+#y = np.matrix(y)
     
     
 vel_name = 'vel_model_model96'
