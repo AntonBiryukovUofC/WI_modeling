@@ -16,7 +16,7 @@ if len(layers)>1:
     
 y[:,0] = layer_thickness
 #y = np.matrix(y)
-    
+#    (",%f"*10)[1:] % tuple(y[0,:])
     
 vel_name = 'vel_model_model96'
 with open(vel_name) as f:
