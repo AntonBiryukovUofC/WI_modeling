@@ -34,4 +34,31 @@ def makeVelocityModel(filename):
     return
 
 fname = 'VpVs.dat'
-makeVelocityModel(fname)
+#makeVelocityModel(fname)
+receiver_name = "receiver.dat"
+i=0
+with open(receiver_name) as f:
+    stations = f.readlines()
+for station in stations:
+    coords = np.asarray(str.split(station)).astype(np.float)
+    path_to_station = "./station" + ("%04d" % i)
+    os.makedirs(path_to_station)
+    # Save depth into a file
+    with open(path_to_station + "/" + "sta_depth", "w") as text_file:
+        text_file.write("%3.3f" % coords[2]/1000)
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
