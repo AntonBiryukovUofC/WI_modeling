@@ -2,6 +2,18 @@ import os
 import shutil
 import numpy as np
 import glob
+
+# Coordinate conversion for azimuths:
+def cart2pol(x, y):
+    rho = np.sqrt(x**2 + y**2)
+    phi = np.arctan2(y, x)
+    return(rho, phi)
+
+def pol2cart(rho, phi):
+    x = rho * np.cos(phi)
+    y = rho * np.sin(phi)
+    return(x, y)
+
 # Start with the velocity model:
 
 def makeVelocityModel(filename):
@@ -45,30 +57,39 @@ fname = 'VpVs.dat'
 
 receiver_name = "receiver.dat"
 source_name = "source.dat"
-n_per_2f = 30
+n_per_2f = 40
 tMax = 6.0
 
 with open(source_name) as f:
     source = f.readlines()
     source_coords = np.asarray(str.split(source[0])).astype(np.float)
-    dt = 1/source_coords[4]/n_per_2f
-    n_of_two = np.round(np.log(tMax/dt)/np.log(2))
-
+    dt = 0.5/source_coords[4]/n_per_2f
+    n_of_two = np.float(np.round(np.log(tMax/dt)/np.log(2)))
+nPts = np.float(2)**n_of_two
 
 i=0
 with open(receiver_name) as f:
     stations = f.readlines()
-    
+stations.pop()
+stations.pop()
 for station in stations:
+    if len(np.asarray(str.split(station)).astype(np.float)) == 0: continue
     coords = np.asarray(str.split(station)).astype(np.float)
-    if len(coords) == 0: continue
     i+=1;
     path_to_station = "./station" + ("%04d" % i)
     os.makedirs(path_to_station)
     # Save depth into a file
     with open(path_to_station + "/" + "sta_depth", "w") as text_file:
         text_file.write("%3.3f" % (float(coords[2])/1000))
-    
+    # Save a distance file
+    #    DIST DT NPTS T0 VRED
+    rec_m_s = (-source_coords[0:2] + coords[0:2])
+    dist, azimuth = cart2pol(rec_m_s[0],rec_m_s[1])
+    dist = dist/1000 # to km
+    azimuth =90 - azimuth/2*np.arccos(0) * 180
+    with open(path_to_station + "/" + "sta_dfile", "w") as text_file:
+        text_file.write("%3.3f %3.5f %d %3.3f %3.3f" % tuple((dist,dt,nPts,0,0))   )
+   
 
 
 
