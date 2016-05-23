@@ -45,9 +45,14 @@ fname = 'VpVs.dat'
 
 receiver_name = "receiver.dat"
 source_name = "source.dat"
+n_per_2f = 30
+tMax = 6.0
+
 with open(source_name) as f:
     source = f.readlines()
     source_coords = np.asarray(str.split(source[0])).astype(np.float)
+    dt = 1/source_coords[4]/n_per_2f
+    n_of_two = np.round(np.log(tMax/dt)/np.log(2))
 
 
 i=0
