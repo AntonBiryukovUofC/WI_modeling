@@ -1,5 +1,7 @@
 import os
+import shutil
 import numpy as np
+import glob
 # Start with the velocity model:
 
 def makeVelocityModel(filename):
@@ -32,20 +34,35 @@ def makeVelocityModel(filename):
     with open("Vel_Model_Final", "w") as text_file:
         text_file.write(" %s" % final_vel)
     return
-
+# Temporary: delete the station folders
+if len(glob.glob("station*"))>0:
+    map(shutil.rmtree,glob.glob("station*"))
+    
 fname = 'VpVs.dat'
 #makeVelocityModel(fname)
+
+
+
 receiver_name = "receiver.dat"
+source_name = "source.dat"
+with open(source_name) as f:
+    source = f.readlines()
+    source_coords = np.asarray(str.split(source[0])).astype(np.float)
+
+
 i=0
 with open(receiver_name) as f:
     stations = f.readlines()
+    
 for station in stations:
     coords = np.asarray(str.split(station)).astype(np.float)
+    if len(coords) == 0: continue
+    i+=1;
     path_to_station = "./station" + ("%04d" % i)
     os.makedirs(path_to_station)
     # Save depth into a file
     with open(path_to_station + "/" + "sta_depth", "w") as text_file:
-        text_file.write("%3.3f" % coords[2]/1000)
+        text_file.write("%3.3f" % (float(coords[2])/1000))
     
 
 
