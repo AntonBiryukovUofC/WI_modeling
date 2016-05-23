@@ -1,4 +1,4 @@
-# WI_modeling
+# WI_modeling, May 2016
 This repo is done for the purpose of implementing the modelling workflow based on waveform integration for earthquake waveform predicitons
 # General workflow for the modeling:
 model96 -> hprep96 -> hspec96 -> hpulse96 -> file96
