@@ -31,8 +31,17 @@ for station_dest in station_names:
     dfile = station_dest+"sta_dfile"
     FHS = station_dest + "eq_depth"
     FHR = station_dest + "sta_depth"
-    command_to_hprep96 = "hprep96 -M %s -d %s -FHS %s -FHR %s " % tuple ((vel_filename,dfile,FHS,FHR))  
-    os.system(command_to_hprep96)
+    command_to_hprep96 = "hprep96 -M %s -d %s -FHS %s -FHR %s -EQEX " % tuple ((vel_filename,dfile,FHS,FHR))  
+    command_to_hspec96 = "hspec96 > hspec96.out"
+    command_to_hpulse96 = "hpulse96 -V -p -l 1 > g1.vel"
+    tensor_xx_yy_zz_xy_xz_yz = [1,1,1,0,0,0]
+    command_to_fmech96 = "fmech96 -XX %3.3f -YY %3.3f -ZZ %3.3f -XY %3.3f -XZ %3.3f -YZ %3.3f -A %3.3f -ROT < g1.vel | f96tosac -G" # not done
+    #rm g1.vel
+    #rm hspec96*
+    #rm dfile    
+    
+    print command_to_hprep96
+    #os.system(command_to_hprep96)
 
 
 
