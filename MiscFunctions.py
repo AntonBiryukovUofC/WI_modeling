@@ -48,7 +48,7 @@ def makeVelocityModel(filename):
     final_vel = "".join(model_file) + vel_to_add
     
     with open("Vel_Model_Final", "w") as text_file:
-        text_file.write(" %s" % final_vel)
+        text_file.write("%s" % final_vel)
     final_name = "Vel_Model_Final"
     return final_name
 
@@ -59,7 +59,7 @@ def MakeStationAndSourceFiles(Rec_filename,Source_filename):
     receiver_name = Rec_filename
     #source_name = "source.dat"
     source_name = Source_filename
-    n_per_2f = 40
+    n_per_2f = 20
     tMax = 6.0
     
     with open(source_name) as f:
