@@ -54,13 +54,12 @@ def makeVelocityModel(filename):
 
     
 # Make stations and receivers files
-def MakeStationAndSourceFiles(Rec_filename,Source_filename):
+def MakeStationAndSourceFiles(Rec_filename,Source_filename,tMax ):
     #receiver_name = "receiver.dat"
     receiver_name = Rec_filename
     #source_name = "source.dat"
     source_name = Source_filename
     n_per_2f = 20
-    tMax = 6.0
     
     with open(source_name) as f:
         source = f.readlines()
