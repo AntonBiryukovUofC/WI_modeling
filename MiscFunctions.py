@@ -1,5 +1,20 @@
 import os
 import numpy as np
+
+
+# Ricker wavelet for convolution
+def ricker(f, length=0.512, dt=0.001):
+    t = np.linspace(-length/2, (length-dt)/2, length/dt)
+    y = (1.-2.*(np.pi**2)*(f**2)*(t**2))*np.exp(-(np.pi**2)*(f**2)*(t**2))
+    return t, y
+
+def rickerInt(t0,tmin,tmax,f, dt=0.001):  
+    omega = f
+    n = round((tmax-tmin)/dt)
+    t = tmin + np.linspace(0,n,n+1)*dt
+    print t
+    g = (t-t0)*np.exp(-(np.pi*omega*(t-t0))**2)
+    return t,g
 # Coordinate conversion for azimuths:
 def DistAndAz(x, y):
     rho = np.sqrt(x**2 + y**2)

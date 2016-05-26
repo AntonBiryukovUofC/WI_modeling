@@ -1,6 +1,7 @@
 import obspy
 import glob
 # Get the traces from SW4
+from MiscFunctions import rickerInt
 
 
 root_dir = "/home/anton/Matlab_Data/Model_Default/"
@@ -22,6 +23,9 @@ for file in list_WI_sac:
 #stN.filter("bandpass",freqmin = 0.0005,freqmax = 5)
 #stWI.integrate()
 #stWI.filter("bandpass",freqmin = 0.0005,freqmax = 8)
+
+# Signal to convolve with
+t,y = rickerInt(0.45,0,1.1,2,stWI[0].stats.delta)
 
 stWI.normalize()
 stWI.trim(starttime = stWI[0].stats.starttime, endtime = stWI[0].stats.starttime+4 )
