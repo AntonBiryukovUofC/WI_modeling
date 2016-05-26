@@ -1,0 +1,67 @@
+# This is an SW4 input file for problem LOH.1 from the 
+#
+# First we set up a grid with a spacing h (=20,40,50)
+# over a domain (X x Y x Z) 30000 x 30000 x 17000.
+# It will run from time t=0 to t=9
+#
+# The material properties are given by the
+# block commands. They describe a layer
+# on top of a half-space in the z-direction
+#
+# The solution is recorded at different locations
+# and saved in different sac-files  (in the LOH_1 directory)
+#
+# A single moment point source is used with 
+# the time dependency being the Gaussian function
+
+grid h=1.02E+02 nx=153 ny=181 nz=88
+time t=4.00E+00
+fileio path=/home/anton/Matlab_Data/Model_Default printcycle=20
+
+#specify the width of the super grid damping layer (30 is the default)
+supergrid gp=30
+
+#specify the sources
+#source.. x=8.39E+03 y=1.00E+04 z=3.91E+03 mxx=M_XX myy=M_YY mzz=M_ZZ mxy=M_XY mxz=M_XZ myz=M_ZY t0=SRC_DELAY freq=2.00E+00 type=SRC_TYPE #MOMENT
+#source.. x=8.39E+03 y=1.00E+04 z=3.91E+03 fx=FX fy=FY fz=FZ t0=SRC_DELAY freq=2.00E+00 type=SRC_TYPE #FORCE
+
+source x=8.39E+03 y=1.00E+04 z=3.91E+03 mxx=1.00e+00 myy=1.00e+00 mzz=1.00e+00 mxy=0.00e+00 mxz=0.00e+00 myz=0.00e+00 t0=0.450 freq=2.00E+00 type=RickerInt
+
+
+# first define the material properties everywhere (half-space) or bottom block
+block vp=3800 vs=2000 rho=2300 
+
+# then define the slower materials
+
+block vp=3800 vs=2000 rho=2300 z1=3260 z2=3960
+block vp=3800 vs=2000 rho=2300 z1=2370 z2=3260
+block vp=3800 vs=2000 rho=2300 z1=2000 z2=2370
+block vp=3800 vs=2000 rho=2300 z1=1000 z2=2000
+block vp=3800 vs=2000 rho=2300 z1=0 z2=1000
+
+#
+# Note that all recording stations are relative to the (0,0,0) origin
+#
+# Required format:
+#rec x=X_REC y=Y_REC z=Z_REC file=STATION_ID sacformat=1 variables=displacement
+
+rec x=5.22E+03 y=5.22E+03 z=2.00E+03 file=station_1 sacformat=1 variables=displacement
+rec x=7.42E+03 y=1.38E+04 z=2.00E+03 file=station_2 sacformat=1 variables=displacement
+rec x=1.09E+04 y=9.01E+03 z=2.00E+03 file=station_3 sacformat=1 variables=displacement
+rec x=8.39E+03 y=1.00E+04 z=3.91E+03 file=station_4 sacformat=1 variables=displacement
+
+# SNapshots at the location specified:
+#imagee x=X_SNAP y=Y_SNAP z=Z_SNAP mode=mag timeInterval=6.67E-02 file=IMAGE_NAME
+
+image x=8.39E+03 mode=mag timeInterval=6.67E-02 file=x-sectionModel_Default
+image y=1.00E+04 mode=mag timeInterval=6.67E-02 file=y-sectionModel_Default
+image z=3.91E+03 mode=mag timeInterval=6.67E-02 file=z-sectionModel_Default
+
+
+# material images
+image y=1 mode=s cycle=0 file=vs
+image x=1 mode=p cycle=0 file=vp
+image x=1 mode=rho cycle=0 file=rho
+
+
+
