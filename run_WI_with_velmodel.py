@@ -40,7 +40,7 @@ for station_dest in station_names:
     dfile = station_dest+"sta_dfile"
     FHS = station_dest + "eq_depth"
     FHR = station_dest + "sta_depth"
-    command_to_hprep96 = "hprep96 -M %s -d %s -FHS %s -FHR %s -EQEX " % tuple ((vel_filename,dfile,FHS,FHR))  
+    command_to_hprep96 = "hprep96 -M %s -d %s -FHS %s -FHR %s " % tuple ((vel_filename,dfile,FHS,FHR))  
     #command_to_hprep96 = "hprep96 -TH -M %s -d %s -FHS %s -FHR %s -EQEX " % tuple ((vel_filename,dfile,FHS,FHR))  
     command_to_hspec96 = "hspec96 | tee hspec96.out"
     command_to_hpulse96 = "hpulse96 -V -p -l 1 > g1.vel"
@@ -73,18 +73,6 @@ for station_dest in station_names:
     status, output = commands.getstatusoutput(command_to_copy)   
     print output
 
-# Get the traces from SW4
-
-
-root_dir = "/home/anton/Matlab_Data/Model_Default/"
-channel="z"
-list_sac =  glob.glob(root_dir +'*'+ "." + channel);
-list_sac.sort();
-stN=obspy.Stream();
-for file in list_sac:
-    stN+=obspy.read(file)
-    
-    
 
 
 
