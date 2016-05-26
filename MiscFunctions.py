@@ -12,7 +12,7 @@ def rickerInt(t0,tmin,tmax,f, dt=0.001):
     omega = f
     n = round((tmax-tmin)/dt)
     t = tmin + np.linspace(0,n,n+1)*dt
-    print t
+    #print t
     g = (t-t0)*np.exp(-(np.pi*omega*(t-t0))**2)
     return t,g
 # Coordinate conversion for azimuths:
