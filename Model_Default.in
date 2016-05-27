@@ -25,7 +25,7 @@ supergrid gp=30
 #source.. x=8.39E+03 y=1.00E+04 z=3.91E+03 mxx=M_XX myy=M_YY mzz=M_ZZ mxy=M_XY mxz=M_XZ myz=M_ZY t0=SRC_DELAY freq=2.00E+00 type=SRC_TYPE #MOMENT
 #source.. x=8.39E+03 y=1.00E+04 z=3.91E+03 fx=FX fy=FY fz=FZ t0=SRC_DELAY freq=2.00E+00 type=SRC_TYPE #FORCE
 
-source x=8.39E+03 y=1.00E+04 z=3.91E+03 mxx=1.00e+00 myy=1.00e+00 mzz=1.00e+00 mxy=0.00e+00 mxz=0.00e+00 myz=0.00e+00 t0=0.450 freq=2.00E+00 type=RickerInt
+source x=8.39E+03 y=1.00E+04 z=3.91E+03 mxx=1.00e+00 myy=1.00e+00 mzz=1.00e+00 mxy=0.00e+00 mxz=0.00e+00 myz=0.00e+00 t0=0.00 freq=2.00E+00 type=VerySmoothBump
 
 
 # first define the material properties everywhere (half-space) or bottom block
@@ -53,9 +53,6 @@ rec x=8.39E+03 y=1.00E+04 z=3.91E+03 file=station_4 sacformat=1 variables=displa
 # SNapshots at the location specified:
 #imagee x=X_SNAP y=Y_SNAP z=Z_SNAP mode=mag timeInterval=6.67E-02 file=IMAGE_NAME
 
-image x=8.39E+03 mode=mag timeInterval=6.67E-02 file=x-sectionModel_Default
-image y=1.00E+04 mode=mag timeInterval=6.67E-02 file=y-sectionModel_Default
-image z=3.91E+03 mode=mag timeInterval=6.67E-02 file=z-sectionModel_Default
 
 
 # material images

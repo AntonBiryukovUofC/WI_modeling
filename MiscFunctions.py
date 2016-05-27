@@ -15,6 +15,24 @@ def rickerInt(t0,tmin,tmax,f, dt=0.001):
     #print t
     g = (t-t0)*np.exp(-(np.pi*omega*(t-t0))**2)
     return t,g
+def VerySmoothBump(t0,tmin,tmax,f, dt=0.001):
+    n = int(round((tmax-tmin)/dt))
+    t = tmin + np.linspace(0,n,n+1)*dt
+    omega=f
+    y=t*0
+    print n
+    for i in range(n+1):
+        ta = omega*(t[i]-t0)
+        if ta<0:
+            y[i] = 0
+        else:
+            if ta>1:
+                y[i] = 0
+            else:
+                y[i] = - 1024*ta**10 + 5120*ta**9 - 10240*ta**8 + 10240*ta**7 - 5120*ta**6 + 1024*ta**5
+    return t,y
+    
+   
 # Coordinate conversion for azimuths:
 def DistAndAz(x, y):
     rho = np.sqrt(x**2 + y**2)

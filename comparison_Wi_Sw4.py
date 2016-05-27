@@ -9,7 +9,7 @@ from MiscFunctions import rickerInt
 
 
 root_dir = "/home/anton/Matlab_Data/Model_Default/"
-station="2"
+station="1"
 list_sac =  glob.glob(root_dir +'*_'+station+ ".*");
 list_sac.sort();
 stN=obspy.Stream();
@@ -27,8 +27,8 @@ for file in list_sac:
     stN+=st_temp
 #stN.filter("bandpass",freqmin = 0.0005,freqmax = 15)
 #stN = stN.sort(reverse=True)
-
 stN.normalize()
+
 #stN.plot(type= 'relative')
 
 
@@ -44,15 +44,25 @@ for file in list_WI_sac:
 #stWI.filter("bandpass",freqmin = 0.0005,freqmax = 8)
 
 # Signal to convolve with
-t,y = rickerInt(0.45,0,1.1,2,stWI[0].stats.delta)
+#t,y = rickerInt(0.45,0,1.1,2,stWI[0].stats.delta)
+t00 =0
+t,y = VerySmoothBump(0.0,0,0.51,2,stWI[0].stats.delta)
+stWI.trim(starttime = stWI[0].stats.starttime+t00, endtime = stWI[0].stats.starttime+4+t00 )
+stWI_Old = stWI.copy()
 
 for trace in stWI:
         c = np.convolve(trace.data,y)
         c = c[0:len(trace)]
         trace.data = c
-stWI.trim(starttime = stWI[0].stats.starttime, endtime = stWI[0].stats.starttime+4 )
+
+# Comb the signal a little bit
+stWI.differentiate()
+
 stWI.normalize()
-#stWI.sort()
+
+
+
+
 kk=1.2
 fE, axE = plt.subplots(1)    
 fE.set_size_inches(15,5, forward=True)    
