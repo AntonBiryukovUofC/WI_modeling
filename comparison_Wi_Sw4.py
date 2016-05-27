@@ -9,7 +9,7 @@ from MiscFunctions import rickerInt
 
 
 root_dir = "/home/anton/Matlab_Data/Model_Default/"
-station="1"
+station="3"
 list_sac =  glob.glob(root_dir +'*_'+station+ ".*");
 list_sac.sort();
 stN=obspy.Stream();

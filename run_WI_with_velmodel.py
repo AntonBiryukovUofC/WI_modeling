@@ -71,7 +71,7 @@ for station_dest in station_names:
     
     status, output = commands.getstatusoutput(command_to_hspec96)
     print command_to_hspec96
-    #print output
+    print output
     
     status, output = commands.getstatusoutput(command_to_hpulse96)
     print command_to_hpulse96
