@@ -50,13 +50,13 @@ for station_dest in station_names:
     #command_to_hpulse96 = "hpulse96 -D -i > g1.vel"
     command_to_hpulse96 = "hpulse96 -D -p -l 1 > g1.vel"
     #tensor_xx_yy_zz_xy_xz_yz = [1,1,1,0,0,0]
-    tensor = [1,0,0,0,0,0]
-    line_to_fmech96 = "fmech96 -XX %3.1f " + "-YY %3.1f "+ "-ZZ %3.1f " + "-XY %3.1f "+ "-XZ %3.1f "+ "-YZ %3.1f " + "-A %3.0f "+  " < g1.vel | f96tosac -B" 
-    #line_to_fmech96 = "fmech96 -XX %3.3f " + "-YY %3.3f "+ "-ZZ %3.3f " + "-XY %3.3f "+ "-XZ %3.3f "+ "-YZ %3.3f " + "-A %3.3f " + "-B %3.3f"  + "  < g1.vel | f96tosac -B" 
+    tensor = [1,0,0,0,1,0]
+    #line_to_fmech96 = "fmech96 -XX %3.1f " + "-YY %3.1f "+ "-ZZ %3.1f " + "-XY %3.1f "+ "-XZ %3.1f "+ "-YZ %3.1f " + "-A %3.0f "+  " < g1.vel | f96tosac -B" 
+    line_to_fmech96 = "fmech96 -XX %3.3f " + "-YY %3.3f "+ "-ZZ %3.3f " + "-XY %3.3f "+ "-XZ %3.3f "+ "-YZ %3.3f " + "-A %3.3f " + "-B %3.3f"  + "  < g1.vel | f96tosac -B" 
     if np.isnan(stationAzimuths[i]):
         stationAzimuths[i] = 0
-    #command_to_fmech96 = line_to_fmech96 % tuple((tensor[0],tensor[1],tensor[2],tensor[3],tensor[4],tensor[5],stationAzimuths[i],stationAzimuths[i]+180))
-    command_to_fmech96 = line_to_fmech96 % tuple((tensor[0],tensor[1],tensor[2],tensor[3],tensor[4],tensor[5],-stationAzimuths[i]))
+    command_to_fmech96 = line_to_fmech96 % tuple((tensor[0],tensor[1],tensor[2],tensor[3],tensor[4],tensor[5],stationAzimuths[i],stationAzimuths[i]+180))
+    #command_to_fmech96 = line_to_fmech96 % tuple((tensor[0],tensor[1],tensor[2],tensor[3],tensor[4],tensor[5],stationAzimuths[i]))
     
     #print command_to_fmech96
     print station_dest

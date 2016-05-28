@@ -5,10 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt 
 
 # Get the traces from SW4
-from MiscFunctions import rickerInt
+from MiscFunctions import rickerInt, VerySmoothBump
 
-
-root_dir = "/home/anton/Matlab_Data/Model_Default/"
+# Change X and Y for SW4 Plotting!!!!!!!!!!!!
+root_dir = "./Model_Default/"
 station="3"
 list_sac =  glob.glob(root_dir +'*_'+station+ ".*");
 list_sac.sort();
@@ -33,7 +33,7 @@ stN.normalize()
 
 
 num_sta = station
-list_WI_sac =  glob.glob("/home/anton/WI_Models/station000"+num_sta+"/*.sac")
+list_WI_sac =  glob.glob("./station000"+num_sta+"/*.sac")
 
 #list_WI_sac =  glob.glob("/home/anton/WI_Models/"+"*.sac")
 for file in list_WI_sac:
@@ -60,7 +60,7 @@ stWI.differentiate()
 
 stWI.normalize()
 
-
+stWI.sort()
 
 
 kk=1.2

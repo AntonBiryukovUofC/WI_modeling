@@ -14,9 +14,9 @@
 # A single moment point source is used with 
 # the time dependency being the Gaussian function
 
-grid h=1.02E+02 nx=153 ny=181 nz=81
-time t=4.00E+00
-fileio path=/home/anton/Matlab_Data/Model_Default printcycle=20
+grid h=1.02E+02 ny=153 nx=181 nz=81
+time t=3.70E+00
+fileio path=./Model_Default printcycle=20
 
 #specify the width of the super grid damping layer (30 is the default)
 supergrid gp=30
@@ -25,7 +25,7 @@ supergrid gp=30
 #source.. x=8.39E+03 y=1.00E+04 z=3.91E+03 mxx=M_XX myy=M_YY mzz=M_ZZ mxy=M_XY mxz=M_XZ myz=M_ZY t0=SRC_DELAY freq=2.00E+00 type=SRC_TYPE #MOMENT
 #source.. x=8.39E+03 y=1.00E+04 z=3.91E+03 fx=FX fy=FY fz=FZ t0=SRC_DELAY freq=2.00E+00 type=SRC_TYPE #FORCE
 
-source x=8.39E+03 y=1.00E+04 z=5.11E+03 mxx=1.00e+00 myy=0.00e+00 mzz=0.00e+00 mxy=0.00e+00 mxz=0.00e+00 myz=0.00e+00 t0=0.00 freq=2.00E+00 type=VerySmoothBump
+source y=8.39E+03 x=1.00E+04 z=5.11E+03 mxx=1.00e+00 myy=0.00e+00 mzz=0.00e+00 mxy=0.00e+00 mxz=1.00e+00 myz=0.00e+00 t0=0.00 freq=2.00E+00 type=VerySmoothBump
 
 
 # first define the material properties everywhere (half-space) or bottom block
@@ -45,10 +45,10 @@ block vp=3800 vs=2000 rho=2300 z1=0 z2=1000
 # Required format:
 #rec x=X_REC y=Y_REC z=Z_REC file=STATION_ID sacformat=1 variables=displacement
 
-rec x=5.22E+03 y=5.22E+03 z=3.20E+03 file=station_1 sacformat=1 variables=displacement
-rec x=7.42E+03 y=1.38E+04 z=3.20E+03 file=station_2 sacformat=1 variables=displacement
-rec x=1.09E+04 y=9.01E+03 z=3.20E+03 file=station_3 sacformat=1 variables=displacement
-rec x=8.39E+03 y=1.00E+04 z=5.11E+03 file=station_4 sacformat=1 variables=displacement
+rec y=5.22E+03 x=5.22E+03 z=3.20E+03 file=station_1 sacformat=1 variables=displacement
+rec y=7.42E+03 x=1.38E+04 z=3.20E+03 file=station_2 sacformat=1 variables=displacement
+rec y=1.09E+04 x=9.01E+03 z=3.20E+03 file=station_3 sacformat=1 variables=displacement
+rec y=8.39E+03 x=1.00E+04 z=5.11E+03 file=station_4 sacformat=1 variables=displacement
 
 # SNapshots at the location specified:
 #imagee x=X_SNAP y=Y_SNAP z=Z_SNAP mode=mag timeInterval=6.67E-02 file=IMAGE_NAME
