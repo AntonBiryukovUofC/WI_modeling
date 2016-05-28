@@ -122,6 +122,7 @@ def MakeStationAndSourceFiles(Rec_filename,Source_filename,tMax ):
             text_file.write("%3.3f" % (float(coords[2])/1000))
             station_list.append(path_to_station + "/")
         with open(path_to_station + "/" + "eq_depth", "w") as text_file:
+            print source_coords
             text_file.write("%3.3f" % (float(source_coords[2])/1000))
         # Save a distance file
         #    DIST DT NPTS T0 VRED
