@@ -25,7 +25,7 @@ supergrid gp=30
 #source.. x=8.39E+03 y=1.00E+04 z=3.91E+03 mxx=M_XX myy=M_YY mzz=M_ZZ mxy=M_XY mxz=M_XZ myz=M_ZY t0=SRC_DELAY freq=2.00E+00 type=SRC_TYPE #MOMENT
 #source.. x=8.39E+03 y=1.00E+04 z=3.91E+03 fx=FX fy=FY fz=FZ t0=SRC_DELAY freq=2.00E+00 type=SRC_TYPE #FORCE
 
-source y=8.39E+03 x=1.00E+04 z=5.11E+03 mxx=1.00e+00 myy=0.00e+00 mzz=0.00e+00 mxy=0.00e+00 mxz=1.00e+00 myz=0.00e+00 t0=0.00 freq=2.00E+00 type=VerySmoothBump
+source y=8.39E+03 x=1.00E+04 z=5.11E+03 mxx=0.00e+00 myy=0.00e+00 mzz=0.00e+00 mxy=1.00e+00 mxz=0.00e+00 myz=1.00e+00 t0=0.00 freq=2.00E+00 type=VerySmoothBump
 
 
 # first define the material properties everywhere (half-space) or bottom block

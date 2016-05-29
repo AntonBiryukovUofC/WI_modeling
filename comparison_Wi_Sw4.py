@@ -67,7 +67,7 @@ kk=1.2
 fE, axE = plt.subplots(1)    
 fE.set_size_inches(15,5, forward=True)    
 
-axE.plot(stN[0].times(),stN[0].data,'-b',30,linewidth=2)
+axE.plot(stN[1].times(),stN[1].data,'-b',30,linewidth=2)
 axE.plot(stWI[0].times(),stWI[0].data+2 ,'--k',30,linewidth=2)
 axE.text(3.9,kk-1+0.1,"Channel FD = " + "%s" % (stN[0].stats.channel), fontsize =12, color = "b")
 axE.text(3.9,kk+0.1,"Channel WI = " + "%s" % (stWI[0].stats.channel), fontsize =12, color = "k")
@@ -76,7 +76,7 @@ axE.set_ylim(-2,4)
 fN, axN = plt.subplots(1)    
 fN.set_size_inches(15,5, forward=True)    
 
-axN.plot(stN[1].times(),stN[1].data,'-b',30,linewidth=2)
+axN.plot(stN[0].times(),stN[0].data,'-b',30,linewidth=2)
 axN.plot(stWI[1].times(),stWI[1].data+2 ,'--k',30,linewidth=2)
 axN.text(3.9,kk-1+0.1,"Channel FD = " + "%s" % (stN[1].stats.channel), fontsize =12, color = "b")
 axN.text(3.9,kk+0.1,"Channel WI = " + "%s" % (stWI[1].stats.channel), fontsize =12, color = "k")
