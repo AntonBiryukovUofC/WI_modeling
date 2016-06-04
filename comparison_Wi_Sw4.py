@@ -46,8 +46,9 @@ for file in list_WI_sac:
 # Signal to convolve with
 #t,y = rickerInt(0.45,0,1.1,2,stWI[0].stats.delta)
 t00 =0
+endT = 3.3
 t,y = VerySmoothBump(0.0,0,0.51,2,stWI[0].stats.delta)
-stWI.trim(starttime = stWI[0].stats.starttime+t00, endtime = stWI[0].stats.starttime+4+t00 )
+stWI.trim(starttime = stWI[0].stats.starttime+t00, endtime = stWI[0].stats.starttime+endT+t00 )
 stWI_Old = stWI.copy()
 
 for trace in stWI:
@@ -65,7 +66,7 @@ stWI.sort()
 
 kk=1.2
 fE, axE = plt.subplots(1)    
-fE.set_size_inches(15,5, forward=True)    
+fE.set_size_inches(7,2, forward=True)    
 
 axE.plot(stN[1].times(),stN[1].data,'-b',30,linewidth=2)
 axE.plot(stWI[0].times(),stWI[0].data+2 ,'--k',30,linewidth=2)
@@ -74,7 +75,7 @@ axE.text(3.9,kk+0.1,"Channel WI = " + "%s" % (stWI[0].stats.channel), fontsize =
 axE.set_ylim(-2,4)
 
 fN, axN = plt.subplots(1)    
-fN.set_size_inches(15,5, forward=True)    
+fN.set_size_inches(7,2, forward=True)    
 
 axN.plot(stN[0].times(),stN[0].data,'-b',30,linewidth=2)
 axN.plot(stWI[1].times(),stWI[1].data+2 ,'--k',30,linewidth=2)
@@ -83,7 +84,7 @@ axN.text(3.9,kk+0.1,"Channel WI = " + "%s" % (stWI[1].stats.channel), fontsize =
 axN.set_ylim(-2,4)
 
 fZ, axZ = plt.subplots(1)    
-fZ.set_size_inches(15,5, forward=True)    
+fZ.set_size_inches(7,2, forward=True)    
 # Flipped Z channel !!!!
 axZ.plot(stN[2].times(),stN[2].data,'-b',30,linewidth=2)
 axZ.plot(stWI[2].times(),-stWI[2].data+2 ,'--k',30,linewidth=2)

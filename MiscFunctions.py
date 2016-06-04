@@ -87,19 +87,21 @@ def makeVelocityModel(filename):
 
     
 # Make stations and receivers files
-def MakeStationAndSourceFiles(Rec_filename,Source_filename,tMax ):
+def MakeStationAndSourceFiles(Rec_filename,Source_filename,tMax,prefix_dest = ''  ):
     #receiver_name = "receiver.dat"
     receiver_name = Rec_filename
     #source_name = "source.dat"
     source_name = Source_filename
-    n_per_2f = 20
+    n_per_2f = 10
     
     with open(source_name) as f:
         source = f.readlines()
         source_coords = np.asarray(str.split(source[0])).astype(np.float)
         dt = 0.5/source_coords[4]/n_per_2f
-        n_of_two = np.float(np.round(np.log(tMax/dt)/np.log(2)))
+        n_of_two = np.float(np.floor(np.log(tMax/dt)/np.log(2))+1)
+    print tMax/dt    
     nPts = np.float(2)**n_of_two
+    print nPts
     
     i=0
     with open(receiver_name) as f:
@@ -115,7 +117,7 @@ def MakeStationAndSourceFiles(Rec_filename,Source_filename,tMax ):
         coords = np.asarray(str.split(station)).astype(np.float)
         stationCoords.append(coords)
         i+=1;
-        path_to_station = "./station" + ("%04d" % i)
+        path_to_station =  prefix_dest + "station" + ("%04d" % i)
         os.makedirs(path_to_station)
         # Save depth into a file
         with open(path_to_station + "/" + "sta_depth", "w") as text_file:

@@ -18,7 +18,7 @@ vel_filename = makeVelocityModel(fname)
 fname = 'receiver.dat'
 sname = 'source.dat'
 # Build folders with stations
-tMax = 4.0
+tMax = 3.4
 
 station_names, stationCoords, stationAzimuths = MakeStationAndSourceFiles(fname,sname,tMax)
 stationCoords = np.matrix(stationCoords)
@@ -31,6 +31,15 @@ for i in range(len(stationAzimuths)):
 
 i=-1
 station_names.pop()
+Mxx = 6.15E20
+Myy = 10E20
+Mzz = 1.95E21
+Mxy = -3.43E21 
+Mxz = -3.61E20
+Myz = 3.41E21
+
+#tensor = [6.15, 10, 19.5, -34.3, -3.61, 34.1]
+tensor = [1, 0, 0, 1, 0, 0]
 #returnnn
 for station_dest in station_names:
     #continue
@@ -44,13 +53,12 @@ for station_dest in station_names:
     dfile = station_dest+"sta_dfile"
     FHS = station_dest + "eq_depth"
     FHR = station_dest + "sta_depth"
-    command_to_hprep96 = "hprep96 -M %s -d %s -FHS %s -FHR %s -BH -TH -ALL" % tuple ((vel_filename,dfile,FHS,FHR))  
+    command_to_hprep96 = "hprep96 -M %s -d %s -FHS %s -FHR %s -BH -ALL" % tuple ((vel_filename,dfile,FHS,FHR))  
     #command_to_hprep96 = "hprep96 -TH -M %s -d %s -FHS %s -FHR %s -EQEX " % tuple ((vel_filename,dfile,FHS,FHR))  
     command_to_hspec96 = "hspec96 | tee hspec96.out"
     #command_to_hpulse96 = "hpulse96 -D -i > g1.vel"
     command_to_hpulse96 = "hpulse96 -D -p -l 1 > g1.vel"
     #tensor_xx_yy_zz_xy_xz_yz = [1,1,1,0,0,0]
-    tensor = [0,0,0,1,0,1]
     #line_to_fmech96 = "fmech96 -XX %3.1f " + "-YY %3.1f "+ "-ZZ %3.1f " + "-XY %3.1f "+ "-XZ %3.1f "+ "-YZ %3.1f " + "-A %3.0f "+  " < g1.vel | f96tosac -B" 
     line_to_fmech96 = "fmech96 -XX %3.3f " + "-YY %3.3f "+ "-ZZ %3.3f " + "-XY %3.3f "+ "-XZ %3.3f "+ "-YZ %3.3f " + "-A %3.3f " + "-B %3.3f"  + "  < g1.vel | f96tosac -B" 
     if np.isnan(stationAzimuths[i]):
