@@ -99,9 +99,9 @@ def MakeStationAndSourceFiles(Rec_filename,Source_filename,tMax,prefix_dest = ''
         source_coords = np.asarray(str.split(source[0])).astype(np.float)
         dt = 0.5/source_coords[4]/n_per_2f
         n_of_two = np.float(np.floor(np.log(tMax/dt)/np.log(2))+1)
-    print tMax/dt    
+    #print tMax/dt    
     nPts = np.float(2)**n_of_two
-    print nPts
+    #print nPts
     
     i=0
     with open(receiver_name) as f:
@@ -124,7 +124,7 @@ def MakeStationAndSourceFiles(Rec_filename,Source_filename,tMax,prefix_dest = ''
             text_file.write("%3.3f" % (float(coords[2])/1000))
             station_list.append(path_to_station + "/")
         with open(path_to_station + "/" + "eq_depth", "w") as text_file:
-            print source_coords
+     #       print source_coords
             text_file.write("%3.3f" % (float(source_coords[2])/1000))
         # Save a distance file
         #    DIST DT NPTS T0 VRED
@@ -135,7 +135,7 @@ def MakeStationAndSourceFiles(Rec_filename,Source_filename,tMax,prefix_dest = ''
         sta_azimuths.append(azimuth)
         with open(path_to_station + "/" + "sta_dfile", "w") as text_file:
             text_file.write("%3.3f %3.5f %d %3.3f %3.3f" % tuple((dist,dt,nPts,0,0)))
-    return station_list, stationCoords, sta_azimuths
+    return station_list, stationCoords, sta_azimuths, source_coords
 
 
 

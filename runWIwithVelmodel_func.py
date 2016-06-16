@@ -13,10 +13,12 @@ def RunWIModel(prefix_dest= '', velname='VpVs.dat', fname = 'receiver.dat',sname
 # Build a velocity model file
     vel_filename = makeVelocityModel(velname)
 # Build folders with stations
-    station_names, stationCoords, stationAzimuths = MakeStationAndSourceFiles(fname,sname,tMax,prefix_dest)
+    station_names, stationCoords, stationAzimuths,sourceCoords = MakeStationAndSourceFiles(fname,sname,tMax,prefix_dest)
     stationCoords = np.matrix(stationCoords)
+
+    plt.close('all')
     plt.plot(stationCoords[:,0],stationCoords[:,1],'ro')
-    plt.plot(stationCoords[-1,0],stationCoords[-1,1],'go')
+    plt.plot(sourceCoords[0],sourceCoords[1],'go')
     plt.axis('equal')
     for i in range(len(stationAzimuths)):
         plt.annotate(str(i+1), (stationCoords[i,0],stationCoords[i,1]))
@@ -43,7 +45,7 @@ def RunWIModel(prefix_dest= '', velname='VpVs.dat', fname = 'receiver.dat',sname
         command_to_fmech96 = line_to_fmech96 % tuple((tensor[0],tensor[1],tensor[2],tensor[3],tensor[4],tensor[5],stationAzimuths[i],stationAzimuths[i]+180))
         print station_dest
     
-    
+
         status, output = commands.getstatusoutput(command_to_hprep96)
         print command_to_hprep96
         print output
