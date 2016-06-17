@@ -148,7 +148,7 @@ def ConvertGVelToSacWithTensor(prefix_dest,tensor = [1, 0, 0, 1, 0, 0],stationAz
     for i in range(len(stationAzimuths)):
         line_to_fmech96 = "fmech96 -XX %3.3f " + "-YY %3.3f "+ "-ZZ %3.3f " + "-XY %3.3f "+ "-XZ %3.3f "+ "-YZ %3.3f " + "-A %3.3f " + "-B %3.3f"  + "  < %s | f96tosac -B" 
         
-        command_to_fmech96 = line_to_fmech96 % tuple((tensor[0],tensor[1],tensor[2],tensor[3],tensor[4],tensor[5],stationAzimuths[i],stationAzimuths[i]+180),gVelFiles[i])
+        command_to_fmech96 = line_to_fmech96 % tuple((tensor[0],tensor[1],tensor[2],tensor[3],tensor[4],tensor[5],stationAzimuths[i],stationAzimuths[i]+180,gVelFiles[i]))
         status, output = commands.getstatusoutput(command_to_fmech96)
         print command_to_fmech96
         #print output
