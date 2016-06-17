@@ -1,6 +1,6 @@
 import numpy as np
 from LocationsOnGrid import LocationsOnGrid
-from runWIwithVelmodel_func import RunWIModelNoTensor
+from runWIwithVelmodel_func import RunWIModelNoTensor,ConvertGVelToSacWithTensor
 import subprocess
 
 # 3166 4814 3910 - receiver at
@@ -28,14 +28,14 @@ sigma = 0.5/2
 for i in range(np.shape(xv)[0]):
     for j in range(np.shape(xv)[1]):
         location_no_tensor = "./"+"Row"+str(i)+"Col"+str(j) + "/"
-        RunWIModelNoTensor(prefix_dest= './temp/', velname='VpVs.dat', fname = 'receiver.dat',sname = sub_source_dir + "/" + "source"+"_"+str(i)+"_"+str(j),
+        stationAzimuths = RunWIModelNoTensor(prefix_dest= './temp/', velname='VpVs.dat', fname = 'receiver.dat',sname = sub_source_dir + "/" + "source"+"_"+str(i)+"_"+str(j),
                            tMax = 3.4)
         
         for k in range(Ntensors):
             tPerturb = np.random.normal(0,sigma,6)
             train_tensor = tensor + tPerturb
             #print train_tensor
-            
+            ConvertGVelToSacWithTensor(prefix_dest = './temp/',tensor = train_tensor,stationAzimuths) #save them in the same folder
             tensor_id_str = str(k)
             
             print location_with_tensor
