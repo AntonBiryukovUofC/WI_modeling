@@ -44,7 +44,7 @@ depths =            3.910000 (            3.910000)
  RECEIVER DEPTH IN WORKING AND ORIGINAL MODEL (           1 )
 depthr =      0.010000 (            0.010000)
  RECEIVER DISTANCES (           1 )
-     r =      2.520000 tshift=      0.00 vred=      0.00
+     r =      2.801000 tshift=      0.00 vred=      0.00
 alpha =   0.48828     dt =     0.020
 frequencies for which response computed     
    0.00195   0.19531   0.39062   0.58594   0.78125   0.97656   1.17188   1.36719
@@ -66,4 +66,4 @@ frequencies for which response computed
   25.00000  -1.00000  -1.00000  -1.00000  -1.00000  -1.00000  -1.00000  -1.00000
  Transition to non-asymptotic at  0.195312500    
      r(km)   t0(sec)    hs(km)    hr(km)    Tp(sec)   Tsv(sec)   Tsh(sec)
-     2.520     0.000     3.910     0.010      1.498      2.322      2.322
+     2.801     0.000     3.910     0.010      1.549      2.401      2.401

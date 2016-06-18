@@ -83,10 +83,12 @@ def RunWIModelNoTensor(prefix_dest= '', velname='VpVs.dat', fname = 'receiver.da
     plt.close('all')
     plt.plot(stationCoords[:,0],stationCoords[:,1],'ro')
     plt.plot(sourceCoords[0],sourceCoords[1],'go')
+    plt.annotate("source", (sourceCoords[0]+100,sourceCoords[1]+200))
+
     plt.axis('equal')
     for i in range(len(stationAzimuths)):
         plt.annotate(str(i+1), (stationCoords[i,0],stationCoords[i,1]))
-        plt.annotate(str(stationAzimuths[i]), (stationCoords[i,0]+100,stationCoords[i,1]+100))
+        plt.annotate("%3.1f" % stationAzimuths[i], (stationCoords[i,0]+100,stationCoords[i,1]+250))
         plt.savefig(prefix_dest + "receiver-source.png")
     i=-1
     #station_names.pop()
@@ -154,13 +156,17 @@ def ConvertGVelToSacWithTensor(prefix_dest = "./" ,tensor = [1, 0, 0, 1, 0, 0],s
         print command_to_fmech96
         stationID = "station%04d" % tuple([i+1])
         final_dest = destination_copy + "/" + stationID
-        command_to_makedir = "mkdir " + final_dest
+        command_to_makedir = "mkdir -p " + final_dest
         status, output = commands.getstatusoutput(command_to_makedir)
         print command_to_makedir
         
         command_to_copy = "cp -v *.sac " + final_dest
         status, output = commands.getstatusoutput(command_to_copy)
+        
         print command_to_copy
+        
+        with open(final_dest + "/" + "TensorComponents", "w") as text_file:
+            text_file.write(len(tensor)*"%3.2f " % tuple(tensor))
         #print output
 
         
