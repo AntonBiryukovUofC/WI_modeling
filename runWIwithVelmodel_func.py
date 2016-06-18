@@ -144,13 +144,23 @@ def RunWIModelNoTensor(prefix_dest= '', velname='VpVs.dat', fname = 'receiver.da
   #  status, output = commands.getstatusoutput("rm hspec96.{dat,grn,out}")
    # status, output = commands.getstatusoutput("rm g1.vel")
 
-def ConvertGVelToSacWithTensor(prefix_dest,tensor = [1, 0, 0, 1, 0, 0],stationAzimuths = [],gVelFiles = []): # Rotates the Green's functions into proper MT and saves the sac files
+def ConvertGVelToSacWithTensor(prefix_dest = "./" ,tensor = [1, 0, 0, 1, 0, 0],stationAzimuths = [],gVelFiles = [], destination_copy = "./"): # Rotates the Green's functions into proper MT and saves the sac files
     for i in range(len(stationAzimuths)):
         line_to_fmech96 = "fmech96 -XX %3.3f " + "-YY %3.3f "+ "-ZZ %3.3f " + "-XY %3.3f "+ "-XZ %3.3f "+ "-YZ %3.3f " + "-A %3.3f " + "-B %3.3f"  + "  < %s | f96tosac -B" 
         
         command_to_fmech96 = line_to_fmech96 % tuple((tensor[0],tensor[1],tensor[2],tensor[3],tensor[4],tensor[5],stationAzimuths[i],stationAzimuths[i]+180,gVelFiles[i]))
         status, output = commands.getstatusoutput(command_to_fmech96)
+        
         print command_to_fmech96
+        stationID = "station%04d" % tuple([i+1])
+        final_dest = destination_copy + "/" + stationID
+        command_to_makedir = "mkdir " + final_dest
+        status, output = commands.getstatusoutput(command_to_makedir)
+        print command_to_makedir
+        
+        command_to_copy = "cp -v *.sac " + final_dest
+        status, output = commands.getstatusoutput(command_to_copy)
+        print command_to_copy
         #print output
 
         
