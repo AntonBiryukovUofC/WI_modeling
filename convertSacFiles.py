@@ -19,15 +19,35 @@ i=1
 
 # Work with one channel for now:
 channel = "Z"+"00"
+
+MomentIdRe = re.compile('moment(.*?)/')
+StationIdRe = re.compile('station(.*?)/')
+LocationIdRe = re.compile('(Row.*?)/')
+
 matchesOneChannel = [x for x in matches if channel in x]
+
+
+
 
 
 for item in matchesOneChannel:
     i+=1
-    st+= obspy.read(item)
-    if np.mod(i,500) == 0:
-        print "%3.3f" % tuple([i/float(len(matches))])
+    temp= obspy.read(item)
+    moment = MomentIdRe.search(item).group(1)
+    station = StationIdRe.search(item).group(1)
+    eq_location = LocationIdRe.search(item).group(1)
+    
+    temp[0].stats.moment = "M" + moment
+    temp[0].stats.station = station
+    temp[0].stats.EQ_location = eq_location
+    temp[0].stats.location = eq_location
+    temp[0].stats.network ="M" + moment 
+    st+=temp
 
+    if np.mod(i,500) == 0:
+        print "%3.3f" % tuple([i/float(len(matchesOneChannel))])
+st.sort(keys = ["network","station"])
+    
 
 
 
