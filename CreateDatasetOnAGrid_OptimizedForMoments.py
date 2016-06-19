@@ -6,10 +6,10 @@ import subprocess
 # 3166 4814 3910 - receiver at
 # Get the location grid for the potential earthquake origins:
 
-Ntensors = 8
+Ntensors = 600
 nx_locations = 2
 
-xv,yv = LocationsOnGrid(receiver_name='receiver.dat',NX=nx_locations)
+xv,yv = LocationsOnGrid(receiver_name='receiver.dat',NX=nx_locations,NY = 1)
 sub_source_dir = "./SourcesGrid"
 subprocess.call("rm -r "+ sub_source_dir, shell = True)
 
@@ -23,7 +23,7 @@ for i in range(np.shape(xv)[0]):
             
 
 # get the moment tensor
-tensor = np.array([0,0,0,1,0,1])
+tensor = np.array([1,1,1,0,0,0])
 sigma = 0.5/2
 for i in range(np.shape(xv)[0]):
     for j in range(np.shape(xv)[1]):

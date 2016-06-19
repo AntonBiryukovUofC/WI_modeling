@@ -21,7 +21,7 @@
       0.700     3.100     2.000     2.300  0.000167  0.000167     2.000     2.300
                 3.100     2.000     2.300  0.000167  0.000167     2.000     2.300
  
-XLENG=  0.1976000E+02 XFAC=  0.4000000E+01
+XLENG=  0.2470000E+02 XFAC=  0.4000000E+01
 WAVENUMBER FILTERING bounded in phase velocites
 [cmax,c1,c2,cmin]=[    -1.000,    -1.000,    -1.000,    -1.000]
 ( -1.0 means 0.0 for cmin and infinity for cmax)
@@ -44,7 +44,7 @@ depths =            3.910000 (            3.910000)
  RECEIVER DEPTH IN WORKING AND ORIGINAL MODEL (           1 )
 depthr =      0.010000 (            0.010000)
  RECEIVER DISTANCES (           1 )
-     r =      2.801000 tshift=      0.00 vred=      0.00
+     r =      4.683000 tshift=      0.00 vred=      0.00
 alpha =   0.48828     dt =     0.020
 frequencies for which response computed     
    0.00195   0.19531   0.39062   0.58594   0.78125   0.97656   1.17188   1.36719
@@ -66,4 +66,4 @@ frequencies for which response computed
   25.00000  -1.00000  -1.00000  -1.00000  -1.00000  -1.00000  -1.00000  -1.00000
  Transition to non-asymptotic at  0.195312500    
      r(km)   t0(sec)    hs(km)    hr(km)    Tp(sec)   Tsv(sec)   Tsh(sec)
-     2.801     0.000     3.910     0.010      1.549      2.401      2.401
+     4.683     0.000     3.910     0.010      1.966      3.047      3.047

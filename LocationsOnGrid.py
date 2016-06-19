@@ -1,7 +1,7 @@
     
 import numpy as np
     
-def LocationsOnGrid(receiver_name = 'receiver.dat',NX = 20):
+def LocationsOnGrid(receiver_name = 'receiver.dat',NX = 20, NY=-2):
     # Get receiver locations:
     receiver_name = 'receiver.dat'
     with open(receiver_name) as f:
@@ -19,8 +19,9 @@ def LocationsOnGrid(receiver_name = 'receiver.dat',NX = 20):
     k=0.1
     leftBottomCorner = np.squeeze(np.asarray( [ np.min(stationCoords[:,0]) - k*width, np.min(stationCoords[:,0]) - k*height ] ))
     rightTopCorner =np.squeeze( np.asarray( [ np.max(stationCoords[:,0])+k*width, np.max(stationCoords[:,0])+k*height ] ))
+    if NY<0:
+        NY = np.floor((rightTopCorner[1] -leftBottomCorner[1])/(rightTopCorner[0] -leftBottomCorner[0])  * NX)
     
-    NY = np.floor((rightTopCorner[1] -leftBottomCorner[1])/(rightTopCorner[0] -leftBottomCorner[0])  * NX)
     x = np.linspace(leftBottomCorner[0],rightTopCorner[0],NX)
     y = np.linspace(leftBottomCorner[1],rightTopCorner[1],NY)
     xv, yv = np.meshgrid(x, y)
