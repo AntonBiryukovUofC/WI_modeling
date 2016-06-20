@@ -3,8 +3,24 @@ This repo is done for the purpose of implementing the modelling workflow based o
 # General workflow for the modeling:
 model96 -> hprep96 -> hspec96 -> hpulse96 -> file96
 
-
 The program hprep96 creates a data file hspec96.dat for use by hspec96 to create the Green’s functions in the ω -distance space. The output of this program is a binary file, hspec96.grn, which is used by hpulse96 to convolve the response with the source time function to create file96 Green’s function time histories.
+
+# Application of ML to the data
+
+Specifically, I would like to work on improving the earthquake source location by combining stochastic and deterministic approaches.
+
+My preliminary thought was to use the classifier, such as a neural network (ANN) to aid in constraining the volume in which the earthquake has potentially occurred. This classifier can be run on the waveform data from several seismic stations as an input, and then assign the xyz of the earthquake as a class.
+
+How do I train the classifier? One way might be by running simulations with known source locations (XYZ or class) and form the training set from the synthetic waveforms. I can vary the moment tensor keeping the XYZ fixed of the event a little bit to achieve some variability in the features that would describe the same class.
+
+Keeping the length of the waveforms fixed for all the simulations, I can concatenate the waveforms from several stations in one. For each sample of that long waveform I would thus be able to determine which station it belongs to and the time since the event origin it characterizes.
+These samples therefore can form the feature set, and the signal amplitudes - the values of the features. 
+
+
+
+# Miscellanious info for CPS codes
+
+
 
 After Hpulse96 I need to specify Focal Mechanism Parameters.
 
