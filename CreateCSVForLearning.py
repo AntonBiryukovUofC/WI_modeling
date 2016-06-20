@@ -33,3 +33,5 @@ for loc in locations:
         Y[nrow,0] = LocationClass
         nrow+=1
        
+np.savetxt("Observations.csv", ObservationMatrix, delimiter=",",fmt = "%.3e")
+np.savetxt("ClassLabels.csv", Y, delimiter=",",fmt = "%d")
