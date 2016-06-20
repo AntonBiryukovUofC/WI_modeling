@@ -69,5 +69,4 @@ for trace in st:
     trace.write(all_trace_dir +trace.stats.moment + "_station_"+trace.stats.station+"_location_"+trace.stats.location+"_channel_"+trace.stats.channel+ ".mseed",format="MSEED")
 
 
-returnn
 

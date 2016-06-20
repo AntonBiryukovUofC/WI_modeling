@@ -12,7 +12,7 @@ for x in range(NMoments): y.append("M" + "%04d" % x)
 moments = y
 root_dir = "./AllTraces/"
 list_mseed = glob.glob(root_dir + "*.mseed")
-trace_for_stats= obspy.read("/home/geoanton/WI_modeling/Row0Col0/moment1/station0003/"+"B00101Z00.sac")
+trace_for_stats= obspy.read("./Row0Col0/moment1/station0003/"+"B00101Z00.sac")
 
 ObservationMatrix = np.empty([NMoments*2,trace_for_stats[0].stats.npts * len(stations)])
 Y = np.empty([NMoments*2,1])
