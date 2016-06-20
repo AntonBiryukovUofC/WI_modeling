@@ -9,15 +9,15 @@ Observations = np.genfromtxt("./Observations.csv",dtype = float,defaultfmt = "%.
 ClassLabels  = np.genfromtxt("./ClassLabels.csv",dtype = float,defaultfmt = "%d",delimiter = ',')
 
 # Perturb the observations with the noise:
-sigma = 0.2
+sigma = 2.1
 mu=0
 Observations = Observations + (sigma * np.random.randn(Observations.shape[0],Observations.shape[1]) + mu)
 
 
 plt.plot(Observations[0,:])
-X_train, X_test, y_train, y_test = train_test_split(Observations, ClassLabels, test_size=0.2, random_state=123)
+X_train, X_test, y_train, y_test = train_test_split(Observations, ClassLabels, test_size=0.4, random_state=123)
 
-logreg = linear_model.LogisticRegression()
+logreg = linear_model.LogisticRegressionCV(Cs=20)
 EQfit = logreg.fit(X_train, y_train)
 predicted = EQfit.predict(X_test)
 
