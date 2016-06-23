@@ -2,7 +2,7 @@ import obspy
 import numpy as np
 import re
 import glob
-locations = ["Row0Col0","Row0Col1","Row1Col0","Row1Col1"]
+locations = ["Row0Col0","Row0Col1","Row0Col2","Row0Col3","Row1Col0","Row1Col1","Row1Col2","Row1Col3"]
 stations = ["0001","0002","0003"]
 y=[]
 NMoments = 400
