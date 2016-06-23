@@ -6,10 +6,10 @@ import subprocess
 # 3166 4814 3910 - receiver at
 # Get the location grid for the potential earthquake origins:
 
-Ntensors = 600
-nx_locations = 2
+Ntensors = 400
+nx_locations = 4
 
-xv,yv = LocationsOnGrid(receiver_name='receiver.dat',NX=nx_locations,NY = 1)
+xv,yv = LocationsOnGrid(receiver_name='receiver.dat',NX=nx_locations,NY = 2)
 sub_source_dir = "./SourcesGrid"
 subprocess.call("rm -r "+ sub_source_dir, shell = True)
 

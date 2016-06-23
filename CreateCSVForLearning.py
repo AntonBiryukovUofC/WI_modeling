@@ -2,10 +2,10 @@ import obspy
 import numpy as np
 import re
 import glob
-locations = ["Row0Col0","Row0Col1"]
+locations = ["Row0Col0","Row0Col1","Row1Col0","Row1Col1"]
 stations = ["0001","0002","0003"]
 y=[]
-NMoments = 600
+NMoments = 400
 for x in range(NMoments): y.append("M" + "%04d" % x)
     
     
