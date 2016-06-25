@@ -1,6 +1,6 @@
 import os
 import numpy as np
-
+import obspy
 
 # Ricker wavelet for convolution
 def ricker(f, length=0.512, dt=0.001):
@@ -138,7 +138,21 @@ def MakeStationAndSourceFiles(Rec_filename,Source_filename,tMax,prefix_dest = ''
     return station_list, stationCoords, sta_azimuths, source_coords
 
 
-
+def circshift(tr, ind):
+    """
+    circular shift of tr by ind samples
+    USAGE
+    trshift = circshift(tr, ind)
+    INPUTS
+    tr - trace to shift
+    ind - number of samples to shift tr.data
+    OUTPUTS
+    """
+    trshift = tr[0].copy()
+    trshift.data = np.roll(trshift.data, ind)
+    #trshift.stats.starttime = trshift.stats.starttime + ind*(1./trshift.stats.sampling_rate)
+    trshift = obspy.Stream(trshift)
+    return trshift
 
 
 

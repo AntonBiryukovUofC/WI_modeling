@@ -23,7 +23,7 @@ channel = "Z"+"00"
 
 MomentIdRe = re.compile('moment(.*?)/')
 StationIdRe = re.compile('station(.*?)/')
-LocationIdRe = re.compile('(Row.*?)/')
+LocationIdRe = re.compile('(Class.*?)/')
 
 matchesOneChannel = [x for x in matches if channel in x]
 
