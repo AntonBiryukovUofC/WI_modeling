@@ -3,17 +3,17 @@ from sklearn import linear_model
 from sklearn import preprocessing
 from sklearn import metrics,neighbors
 import matplotlib.pyplot as plt
-from sklearn.cross_validation import train_test_split
+from sklearn.cross_validation import train_test_split,cross_val_score
 
 Observations = np.genfromtxt("./Observations.csv",dtype = float,defaultfmt = "%.3e",delimiter = ',')
 ClassLabels  = np.genfromtxt("./ClassLabels.csv",dtype = float,defaultfmt = "%d",delimiter = ',')
 
 # Perturb the observations with the noise:
-sigma = 0.009
+sigma = 0.09
 mu=0
 Observations = Observations + (sigma * np.random.randn(Observations.shape[0],Observations.shape[1]) + mu)
 plt.plot(Observations[0,:])
-X_train, X_test, y_train, y_test = train_test_split(Observations, ClassLabels, test_size=0.3, random_state=23)
+X_train, X_test, y_train, y_test = train_test_split(Observations, ClassLabels, test_size=0.3, random_state=123)
 
 
 
@@ -29,7 +29,12 @@ EQfit = logreg.fit(X_train, y_train)
 predicted = EQfit.predict(X_test)
 
 probs = EQfit.predict_proba(X_test)
+ConfMatrix  = metrics.confusion_matrix(y_test,
+                                    predicted)
 ScoreMetric =  metrics.accuracy_score(y_test, predicted)
+
+# Scores with various random inits:
+scores = cross_val_score(EQfit, Observations, ClassLabels, cv=10)
 
 # Analyze standard deviations per feature
 stds = np.apply_along_axis(np.std, 0, Observations)

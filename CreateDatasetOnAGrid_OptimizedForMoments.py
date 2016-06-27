@@ -9,7 +9,7 @@ import subprocess
 Ntensors = 200
 nx_locations = 3
 
-xv,yv = LocationsOnGrid(receiver_name='receiver.dat',NX=nx_locations,NY = 2)
+xv,yv,stCoords = LocationsOnGrid(receiver_name='receiver.dat',NX=nx_locations,NY = 2)
 sub_source_dir = "./SourcesGrid"
 subprocess.call("rm -r "+ sub_source_dir, shell = True)
 

@@ -25,4 +25,4 @@ def LocationsOnGrid(receiver_name = 'receiver.dat',NX = 20, NY=-2):
     x = np.linspace(leftBottomCorner[0],rightTopCorner[0],NX)
     y = np.linspace(leftBottomCorner[1],rightTopCorner[1],NY)
     xv, yv = np.meshgrid(x, y)
-    return xv,yv
+    return xv,yv,stationCoords
