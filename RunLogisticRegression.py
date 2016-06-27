@@ -18,11 +18,11 @@ X_train, X_test, y_train, y_test = train_test_split(Observations, ClassLabels, t
 
 
 
-#logreg = linear_model.LogisticRegressionCV(multi_class = "ovr",Cs= 20)
-#EQfit = logreg.fit(X_train, y_train)
-n_neighbors = 50
-KNN =neighbors.KNeighborsClassifier(n_neighbors, weights='uniform')
-EQfit = KNN.fit(X_train, y_train)
+logreg = linear_model.LogisticRegressionCV(multi_class = "ovr",Cs= 20)
+EQfit = logreg.fit(X_train, y_train)
+#n_neighbors = 50
+#KNN =neighbors.KNeighborsClassifier(n_neighbors, weights='uniform')
+#EQfit = KNN.fit(X_train, y_train)
 
 
 
