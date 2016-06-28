@@ -14,7 +14,8 @@ mu=0
 Observations = Observations + (sigma * np.random.randn(Observations.shape[0],Observations.shape[1]) + mu)
 plt.plot(Observations[0,:])
 X_train, X_test, y_train, y_test = train_test_split(Observations, ClassLabels, test_size=0.3, random_state=123)
-
+stds = np.apply_along_axis(np.std, 0, Observations)
+plt.plot(stds)
 
 
 
@@ -37,8 +38,7 @@ ScoreMetric =  metrics.accuracy_score(y_test, predicted)
 scores = cross_val_score(EQfit, Observations, ClassLabels, cv=10)
 
 # Analyze standard deviations per feature
-stds = np.apply_along_axis(np.std, 0, Observations)
-plt.plot(stds)
+
 
 # Now when we learned on a low-res, lets apply to high res:
 # Try to aggregate classes:
