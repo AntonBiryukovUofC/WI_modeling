@@ -1,38 +1,48 @@
 import numpy as np
-from LocationsOnGrid import LocationsOnGrid
+from LocationsOnGrid import LocationsOnGridSmall
 from runWIwithVelmodel_func import RunWIModelNoTensor,ConvertGVelToSacWithTensor
 import subprocess
+import pandas as pd
+import matplotlib as mpl
+mpl.style.use('ggplot')
+
 
 # 3166 4814 3910 - receiver at
 # Get the location grid for the potential earthquake origins:
 
-Ntensors = 200
-nx_locations = 3
-
-xv,yv,stCoords = LocationsOnGrid(receiver_name='receiver.dat',NX=nx_locations,NY = 2)
+Ntensors = 5
+nx_locations = 2
+ny_locations = 2
+nz_locations = 15
+xv,yv,zv,stCoords = LocationsOnGridSmall(receiver_name='receiver.dat',NX=nx_locations,NY = ny_locations,NZ = nz_locations)
 sub_source_dir = "./SourcesGrid"
 subprocess.call("rm -r "+ sub_source_dir, shell = True)
 
 subprocess.call("mkdir "+ sub_source_dir, shell = True)
-
+src_names = []
 # 3166 4814 3910	0	2.5	2
 for i in range(np.shape(xv)[0]):
     for j in range(np.shape(xv)[1]):
-        with open(sub_source_dir + "/" + "source"+"_"+str(i)+"_"+str(j), "w") as text_file:
-            text_file.write("%3.3f %3.3f %3.3f %3.3f %3.3f %3.3f" % (xv[i][j], yv[i][j], 3910,0,2.5,2))
-            
+        for k in range(np.shape(xv)[2]):
+            src_name  = sub_source_dir + "/" + "source"+"_"+str(i)+"_"+str(j)+"_"+str(k)
+            src_names.append(src_name)
+            with open(src_name, "w") as text_file:
+                text_file.write("%3.3f %3.3f %3.3f %3.3f %3.3f %3.3f" % (xv[i][j][k], yv[i][j][k], zv[i][j][k],0,2.5,2))
+
+
+sourcesDF =pd.DataFrame( {'X':xv.flatten(),'Y':yv.flatten(),'Z':zv.flatten(),'src_loc':src_names,'Class':range(len(src_names))} )
+sourcesDF.index= range(sourcesDF.shape[0])
+sourcesDF.to_csv('sourcesDF.csv')
 
 # get the moment tensor
 tensor = np.array([1,1,1,0,0,0])
 sigma = 0.5/2
-ClassLabel=0
-for i in range(np.shape(xv)[0]):
-    for j in range(np.shape(xv)[1]):
-        location_no_tensor = "./"+"Class" +"%03d" % (ClassLabel) +"/"
+for index,row in sourcesDF.iterrows():
+        location_no_tensor = "./"+"Class" +"%03d" % (row.Class) +"/"
         stationAzimuths,gVelFiles = RunWIModelNoTensor(
                                     prefix_dest= location_no_tensor,
                                     velname='VpVs.dat',fname = 'receiver.dat',
-                                    sname = sub_source_dir + "/" + "source"+"_"+str(i)+"_"+str(j),
+                                    sname = row.src_loc,
                                     tMax = 3.4
                                     )
         
@@ -50,7 +60,6 @@ for i in range(np.shape(xv)[0]):
                                        gVelFiles = gVelFiles,
                                        destination_copy = location_with_tensor) 
                                        #save them in the same folder
-        ClassLabel+=1
             
             
     

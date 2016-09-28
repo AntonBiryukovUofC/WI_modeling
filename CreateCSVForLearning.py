@@ -3,13 +3,14 @@ import numpy as np
 import re
 import glob
 from MiscFunctions import circshift
+import pandas as pd
 #Add some variations with t_ref
 
-
-NClass=6
+SourcesCSV = pd.read_csv('sourcesDF.csv')
+NClass=SourcesCSV.shape[0]
 y=[]
 # perturbation for ref time:
-shift = 15
+shift = 10
 
 
 for x in range(NClass): y.append("Class" + "%03d" % x)
@@ -17,7 +18,7 @@ for x in range(NClass): y.append("Class" + "%03d" % x)
 locations = y
 stations = ["0001","0002","0003"]
 y=[]
-NMoments = 200
+NMoments = 5
 for x in range(NMoments): y.append("M" + "%04d" % x)
     
     
