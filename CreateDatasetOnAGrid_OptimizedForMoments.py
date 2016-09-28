@@ -10,7 +10,7 @@ mpl.style.use('ggplot')
 # 3166 4814 3910 - receiver at
 # Get the location grid for the potential earthquake origins:
 
-Ntensors = 5
+Ntensors = 150
 nx_locations = 2
 ny_locations = 2
 nz_locations = 15
