@@ -6,7 +6,7 @@ from MiscFunctions import circshift
 import pandas as pd
 #Add some variations with t_ref
 
-SourcesCSV = pd.read_csv('sourcesDF.csv')
+SourcesCSV = pd.read_csv('SourcesWithPicks.csv')
 NClass=SourcesCSV.shape[0]
 y=[]
 # perturbation for ref time:
@@ -28,6 +28,9 @@ list_mseed = glob.glob(root_dir + "*.mseed")
 trace_for_stats= obspy.read("./Class000/moment1/station0003/"+"B00101Z00.sac")
 
 ObservationMatrix = np.empty([NMoments*len(locations),trace_for_stats[0].stats.npts * len(stations)])
+ObservationMatrixPicks = np.empty([NMoments*len(locations),2 * len(stations)])
+ErrP = 0.010/2
+ErrS = 0.015/2
 Y = np.empty([NMoments*len(locations),1])
 LocationClass = -1
 nrow = 0
@@ -47,6 +50,18 @@ for loc in locations:
 
             observation = np.append(observation,temp_trace[0].data)
         ObservationMatrix[nrow,:] = observation
+        rowSource = SourcesCSV.ix[SourcesCSV.Class == LocationClass]
+        Psta1 = rowSource.Psta1 +  ErrP*np.random.randn(1)
+        Psta2 = rowSource.Psta2 +  ErrP*np.random.randn(1)
+        Psta3 = rowSource.Psta3 +  ErrP*np.random.randn(1)
+        
+        Ssta1 = rowSource.Ssta1 +  ErrS*np.random.randn(1)
+        Ssta2 = rowSource.Ssta2 +  ErrS*np.random.randn(1)
+        Ssta3 = rowSource.Ssta3 +  ErrS*np.random.randn(1)
+        pickRow = np.array([Psta1.values,Psta2.values,Psta3.values,Ssta1.values,Ssta2.values,Ssta3.values])
+        pickRow.shape=(6,)
+        ObservationMatrixPicks[nrow,:] = pickRow
+        
         Y[nrow,0] = LocationClass
         nrow+=1
        

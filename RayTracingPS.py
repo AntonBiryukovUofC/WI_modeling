@@ -29,6 +29,7 @@ for iSt in range(stCoords.shape[0]):
     SourcesCSV['Psta%d' % (iSt+1)] = p_arrival
     SourcesCSV['Ssta%d' % (iSt+1)] = s_arrival
     SourcesCSV['Dsta%d' % (iSt+1)] = so_offset
-    
+
+SourcesCSV.to_csv('SourcesWithPicks.csv')
 
 
