@@ -154,7 +154,7 @@ def circshift(tr, ind):
     trshift = obspy.Stream(trshift)
     return trshift
 
-def GetPSArrivalRayTracing(sta_coords = np.array([0,0,0.0]), eq_coords =np.array([0,0,3900])):
+def GetPSArrivalRayTracing(sta_coords = np.array([0,0,0.0]), eq_coords =np.array([0,0,3900]),model_name = 'VpVs.nd'):
     # play witht the Pyrocko modules
     from pyrocko import cake
     import matplotlib
@@ -173,12 +173,113 @@ def GetPSArrivalRayTracing(sta_coords = np.array([0,0,0.0]), eq_coords =np.array
         print p_arrival
         s_arrival  = rayS.t
         print s_arrival
-    return p_arrival,s_arrival,so_offset
+    return p_arrival,s_arrival,so_offset,model
+
+def GetPSArrivalRayTracingMC(sta_coords = np.array([0,0,0.0]), eq_coords =np.array([0,0,3900]),model=None):
+    # play witht the Pyrocko modules
+    from pyrocko import cake
+    import matplotlib
+    matplotlib.style.use('ggplot')
+    #from LocationsOnGrid import LocationsOnGridSmall
+    eq_depth = eq_coords[2]
+    so_offset = np.linalg.norm(sta_coords[:2] - eq_coords[:2])
+    #_,_,_,stCoords = LocationsOnGridSmall(receiver_name='receiver.dat',NX=1,NY = 1,NZ =1) # Get the receiver locations
+    
+    Distance = so_offset*cake.m2d
+    p_transmission_paths = model.arrivals(distances = [Distance],phases = [cake.PhaseDef('p')],zstart = eq_depth)
+    s_transmission_paths = model.arrivals(distances = [Distance],phases = [cake.PhaseDef('s')],zstart = eq_depth)
+    for rayP,rayS in zip(p_transmission_paths,s_transmission_paths):
+        p_arrival  = rayP.t
+        print p_arrival
+        s_arrival  = rayS.t
+        print s_arrival
+        
+    return p_arrival,s_arrival,so_offset,model
 
 
+def getAmplitudeEnvelopeFeatures(traceName = '/home/anton/WI_Models/AllTraces/M0055_station_0003_location_Class036_channel_Z.mseed',st=1.2,fn=2.2):
+    import obspy 
+    import numpy as np
+    from obspy.signal.filter import envelope
+    from scipy.integrate import simps
+    from scipy.stats import kurtosis
+    trace = obspy.read(traceName)
+    trace.normalize()
+    #data_envelopeM = obspy.signal.filter.envelope(trace.data)
+    TraceCopy  = trace[0].copy()
+    envTrace = trace[0].copy()
+   
+    envTrace.data = envelope(TraceCopy.data)
+    # Feature 0 : peakedness 
+    KurtosisEnvelopeDiff =kurtosis(np.diff(envTrace.data))
+    # Feature 1
+    StdEnvelope = envTrace.data.std()
+    # Feature 2
+    MeanEnvelope = envTrace.data.mean()
+    
+    
+    envTrace.trim(starttime = trace[0].stats.starttime + st,endtime = trace[0].stats.starttime + fn)
+    TraceCopy.trim(starttime = trace[0].stats.starttime + st,endtime = trace[0].stats.starttime + fn)
+    #Integrate the envelope in the region:
+    # Feature 3
+    EnvelopeIntegral = simps(y = envTrace.data,x = envTrace.times()) / (envTrace.stats.endtime - envTrace.stats.starttime)
+    EnergyInTheSubTrace = simps(y = TraceCopy.data**2,x = TraceCopy.times())
+    EnergyWholeTrace = simps(y = trace[0].data**2,x = trace[0].times())
+    
+    #Feature 4
+    EnergyRatio = EnergyInTheSubTrace/EnergyWholeTrace
+    #Feature 5 
+    zc= np.sign( np.diff(envTrace.data) )  
+    zc[zc==0] = -1     # replace zeros with -1  
+    zcFeature = np.where(np.diff(zc))[0].shape[0] 
+    
+    return KurtosisEnvelopeDiff,StdEnvelope,MeanEnvelope,EnvelopeIntegral,EnergyRatio,zcFeature
 
-
-
+def getAmplitudeEnvelopeFeaturesReal(traceName = '/home/anton/WI_Models/AllTraces/M0055_station_0003_location_Class036_channel_Z.mseed',
+                                     st=1.2,fn=2.2,fmin=1,fmax=10,starttime=None,endtime=None ):
+    import obspy 
+    import numpy as np
+    from obspy.signal.filter import envelope
+    from scipy.integrate import simps
+    from scipy.stats import kurtosis
+    trace = obspy.read(traceName)
+    if trace[0].stats.starttime.year < starttime.year:
+        return None
+    trace.trim(starttime = starttime,endtime = endtime)
+    trace.normalize()
+    trace.taper(type= "cosine",max_percentage=0.05)    
+    
+    trace.filter(type='bandpass',freqmin=fmin,freqmax=fmax)
+    
+    #data_envelopeM = obspy.signal.filter.envelope(trace.data)
+    TraceCopy  = trace[0].copy()
+    envTrace = trace[0].copy()
+   
+    envTrace.data = envelope(TraceCopy.data)
+    # Feature 0 : peakedness 
+    KurtosisEnvelopeDiff =kurtosis(np.diff(envTrace.data))
+    # Feature 1
+    StdEnvelope = envTrace.data.std()
+    # Feature 2
+    MeanEnvelope = envTrace.data.mean()
+    
+    
+    envTrace.trim(starttime = trace[0].stats.starttime + st,endtime = trace[0].stats.starttime + fn)
+    TraceCopy.trim(starttime = trace[0].stats.starttime + st,endtime = trace[0].stats.starttime + fn)
+    #Integrate the envelope in the region:
+    # Feature 3
+    EnvelopeIntegral = simps(y = envTrace.data,x = envTrace.times()) / (envTrace.stats.endtime - envTrace.stats.starttime)
+    EnergyInTheSubTrace = simps(y = TraceCopy.data**2,x = TraceCopy.times())
+    EnergyWholeTrace = simps(y = trace[0].data**2,x = trace[0].times())
+    
+    #Feature 4
+    EnergyRatio = EnergyInTheSubTrace/EnergyWholeTrace
+    #Feature 5 
+    zc= np.sign( np.diff(envTrace.data) )  
+    zc[zc==0] = -1     # replace zeros with -1  
+    zcFeature = np.where(np.diff(zc))[0].shape[0] 
+    
+    return KurtosisEnvelopeDiff,StdEnvelope,MeanEnvelope,EnvelopeIntegral,EnergyRatio,zcFeature
 
 
 

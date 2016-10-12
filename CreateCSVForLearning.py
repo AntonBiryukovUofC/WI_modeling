@@ -2,7 +2,7 @@ import obspy
 import numpy as np
 import re
 import glob
-from MiscFunctions import circshift
+from MiscFunctions import circshift, getAmplitudeEnvelopeFeatures
 import pandas as pd
 #Add some variations with t_ref
 
@@ -18,7 +18,7 @@ for x in range(NClass): y.append("Class" + "%03d" % x)
 locations = y
 stations = ["0001","0002","0003"]
 y=[]
-NMoments = 150
+NMoments = 50
 for x in range(NMoments): y.append("M" + "%04d" % x)
     
     
@@ -29,6 +29,7 @@ trace_for_stats= obspy.read("./Class000/moment1/station0003/"+"B00101Z00.sac")
 
 ObservationMatrix = np.empty([NMoments*len(locations),trace_for_stats[0].stats.npts * len(stations)])
 ObservationMatrixPicks = np.empty([NMoments*len(locations),2 * len(stations)])
+ObservationMatrixFeatures = np.empty([NMoments*len(locations),6* len(stations)])
 ErrP = 0.0
 ErrS = 0.0
 Y = np.empty([NMoments*len(locations),1])
@@ -40,6 +41,9 @@ for loc in locations:
     for moment in moments:
         print("Processing moment " + moment)
         observation = np.array([])
+        featureSet = np.zeros((len(stations),6))
+        ist =0 
+        rowSource = SourcesCSV.ix[SourcesCSV.Class == LocationClass]
         for sta in stations:
             part_of_name =moment +  "_station_"+sta+"_location_"+loc
             matches = [x for x in list_mseed if part_of_name in x]
@@ -49,7 +53,18 @@ for loc in locations:
             temp_trace.taper(type= "cosine",max_percentage=0.05)
 
             observation = np.append(observation,temp_trace[0].data)
+                    # Add Feature selection here:
+            st =rowSource['Psta%d'% (ist+1)].values+  0.03*np.random.randn(1)
+            fn = rowSource['Ssta%d'% (ist+1)].values+  0.03*np.random.randn(1)
+            featureSet[ist,:] = getAmplitudeEnvelopeFeatures(matches[0],st=st , fn=fn )
+            ist+=1
+            
         ObservationMatrix[nrow,:] = observation
+        
+
+        # Add selected features in addition to the time picks:        
+        
+        
         rowSource = SourcesCSV.ix[SourcesCSV.Class == LocationClass]
         Psta1 = rowSource.Psta1 +  ErrP*np.random.randn(1)
         Psta2 = rowSource.Psta2 +  ErrP*np.random.randn(1)
@@ -61,6 +76,8 @@ for loc in locations:
         pickRow = np.array([Psta1.values,Psta2.values,Psta3.values,Ssta1.values,Ssta2.values,Ssta3.values])
         pickRow.shape=(6,)
         ObservationMatrixPicks[nrow,:] = pickRow
+        ObservationMatrixFeatures[nrow,:] = featureSet.flatten()
+
         
         Y[nrow,0] = LocationClass
         nrow+=1
@@ -68,3 +85,6 @@ for loc in locations:
 np.savetxt("Observations.csv", ObservationMatrix, delimiter=",",fmt = "%.3e")
 np.savetxt("ClassLabels.csv", Y, delimiter=",",fmt = "%d")
 np.savetxt("ObservationsPicks.csv", ObservationMatrixPicks, delimiter=",",fmt = "%.3e")
+FeaturesAndPicks = np.hstack((ObservationMatrixPicks,ObservationMatrixFeatures))
+np.savetxt("ObservationsPicksAndFeatures.csv", FeaturesAndPicks, delimiter=",",fmt = "%.3e")
+

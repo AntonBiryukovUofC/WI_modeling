@@ -10,11 +10,12 @@ mpl.style.use('ggplot')
 # 3166 4814 3910 - receiver at
 # Get the location grid for the potential earthquake origins:
 
-Ntensors = 150
-nx_locations = 2
-ny_locations = 2
+Ntensors = 50
+nx_locations = 3
+ny_locations = 3
 nz_locations = 15
-xv,yv,zv,stCoords = LocationsOnGridSmall(receiver_name='receiver.dat',NX=nx_locations,NY = ny_locations,NZ = nz_locations)
+xv,yv,zv,stCoords = LocationsOnGridSmall(receiver_name='receiver.dat',NX=nx_locations,NY = ny_locations,NZ = nz_locations,
+                                         leftBottomCorner=[3000,4000],rightTopCorner=[4500,6500],depthRange = [2500,5000])
 sub_source_dir = "./SourcesGrid"
 subprocess.call("rm -r "+ sub_source_dir, shell = True)
 
@@ -34,9 +35,16 @@ sourcesDF =pd.DataFrame( {'X':xv.flatten(),'Y':yv.flatten(),'Z':zv.flatten(),'sr
 sourcesDF.index= range(sourcesDF.shape[0])
 sourcesDF.to_csv('sourcesDF.csv')
 
+Mxx = 6.15
+Myy = 10
+Mzz = 1.95E1
+Mxy = -3.43E1 
+Mxz = -3.61
+Myz = 3.41E1
+
 # get the moment tensor
-tensor = np.array([1,1,1,0,0,0])
-sigma = 0.5/2
+tensor = np.array([Mxx,Myy,Mzz,Mxy,Mxz,Myz])
+sigma = np.abs(tensor).mean()/6
 for index,row in sourcesDF.iterrows():
         location_no_tensor = "./"+"Class" +"%03d" % (row.Class) +"/"
         stationAzimuths,gVelFiles = RunWIModelNoTensor(

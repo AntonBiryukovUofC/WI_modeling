@@ -27,7 +27,7 @@ def LocationsOnGrid(receiver_name = 'receiver.dat',NX = 20, NY=2):
     xv, yv = np.meshgrid(x, y)
     return xv,yv,stationCoords
     
-def LocationsOnGridSmall(receiver_name = 'receiver.dat',NX = 2, NY=2,NZ=10,leftBottomCorner=[2000,2000],rightTopCorner=[3000,3000],depthRange = [2000,5000]):
+def LocationsOnGridSmall(receiver_name = 'receiver.dat',NX = 2, NY=2,NZ=10,leftBottomCorner=[2000,2000],rightTopCorner=[3000,4000],depthRange = [2500,5000]):
     # Get receiver locations:
     receiver_name = 'receiver.dat'
     with open(receiver_name) as f:

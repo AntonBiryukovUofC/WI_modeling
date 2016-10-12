@@ -20,10 +20,11 @@ for iSt in range(stCoords.shape[0]):
     s_arrival =np.zeros(SourcesCSV.shape[0])
     so_offset =np.zeros(SourcesCSV.shape[0])
     for index,row in SourcesCSV.iterrows():
-        p_arrival[index],s_arrival[index],so_offset[index] = GetPSArrivalRayTracing(
+        mName='VpVs.nd'
+        p_arrival[index],s_arrival[index],so_offset[index],model = GetPSArrivalRayTracing(
                                                             sta_coords=stCoords[iSt,:],
-                                                            eq_coords=np.array([row.X,row.Y,row.Z])
-                                                            )
+                                                            eq_coords=np.array([row.X,row.Y,row.Z]),
+                                                            model_name=mName)
         print ' Done with station %d and event %d ' % (iSt,index)
     
     SourcesCSV['Psta%d' % (iSt+1)] = p_arrival
