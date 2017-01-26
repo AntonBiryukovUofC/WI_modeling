@@ -25,18 +25,14 @@ model =cake.load_model(('VpVs.nd'))
 MC = 10000
 nLayers = 6
        
-stationsCatalog = pd.read_csv('/home/anton/WI_Models/FoxCreekMSEED/foxCreekStations.csv')
-stCoords = np.zeros((stationsCatalog.shape[0],3))
-Xref = stationsCatalog.X[3]
-Yref = stationsCatalog.Y[3]
-stCoords[:,0]=stationsCatalog.X - Xref
-stCoords[:,1]=stationsCatalog.Y - Yref
-stCoords[:,2]=10
+stCoords = np.array([[0, 0, 10],
+                      [2195, 8562, 10],
+                      [5679, 3792, 10],
+                      ])
 
 
-p_arrival = np.zeros((MC,stationsCatalog.shape[0]))
-s_arrival = np.zeros((MC,stationsCatalog.shape[0]))
-so_offset = np.zeros((MC,stationsCatalog.shape[0]))
+
+
 # Time the calculations here !
 
 t0 = time.time()
@@ -52,7 +48,7 @@ results = Parallel(n_jobs=num_cores)(delayed(GetRayTracingPar)(i) for i in input
         
 t1 = time.time()
 total = t1-t0  
-print 'Total time is %3.6f' % total      
+print 'Total time is %3.6f s' % total      
         
 '''
 for iSt in range(4):

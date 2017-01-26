@@ -3,7 +3,6 @@ import numpy as np
     
 def LocationsOnGrid(receiver_name = 'receiver.dat',NX = 20, NY=2):
     # Get receiver locations:
-    receiver_name = 'receiver.dat'
     with open(receiver_name) as f:
         stations = f.readlines()
         #stations.pop()
@@ -29,7 +28,6 @@ def LocationsOnGrid(receiver_name = 'receiver.dat',NX = 20, NY=2):
     
 def LocationsOnGridSmall(receiver_name = 'receiver.dat',NX = 2, NY=2,NZ=10,leftBottomCorner=[2000,2000],rightTopCorner=[3000,4000],depthRange = [2500,5000]):
     # Get receiver locations:
-    receiver_name = 'receiver.dat'
     with open(receiver_name) as f:
         stations = f.readlines()
         #stations.pop()
