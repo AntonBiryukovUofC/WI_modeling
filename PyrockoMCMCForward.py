@@ -71,7 +71,7 @@ for eq_index,rowEq in eqdf.iterrows():
         print ' Done with station %d and eq %d ' % (st_index,eq_index)
              
 
-np.savez('ForwardDataMCMC.npz',tp,ts,so,stdf,eqdf)        
+np.savez('ForwardDataMCMC.npz',tp=tp,ts=ts,so=so,stdf=stdf,eqdf=eqdf)        
         
         
 t1 = time.time()
