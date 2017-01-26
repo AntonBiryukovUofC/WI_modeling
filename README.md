@@ -1,4 +1,4 @@
-# WI_modeling, May 2016
+# WI_modeling, Jan 2017
 This repo is done for the purpose of implementing the modelling workflow based on waveform integration for earthquake waveform predictions and velocity calibration using MCMC approach.
 
 Currently I am implementing the generalized Metropolis-Hastings MCMC to infer the velocity model and the elastic props of the layers in the toy example. Specifically, the codes in PythonMCMCForward.py are ray-tracing the travel times for P waves towards the stations from the earthquakes distributed withing some pre-defined volume.
