@@ -324,5 +324,20 @@ def toUTC(row):
     strUTC = obspy.UTCDateTime('%d-%02d-%02dT%02d:%02d:%2.3f' % tuple(date_list))
     return strUTC
 
-
-
+def DoForwardModel(eqdf,stdf,model):
+    Neq=eqdf.shape[0]
+    Nstations = stdf.shape[0]
+    tp=np.zeros((Neq,Nstations))
+    ts=np.zeros_like(tp)
+    so=np.zeros_like(tp)
+    for eq_index,rowEq in eqdf.iterrows():
+        eq_coords = np.array([rowEq.x,rowEq.y,rowEq.z])
+        for st_index,rowSt in stdf.iterrows():
+            # Get the time for P,S arrivals and offset
+            p,s,o= GetPSArrivalRayTracingMC(sta_coords=[rowSt.x,rowSt.y,rowSt.z],
+                                               eq_coords=eq_coords,
+                                               model=model)
+            tp[eq_index,st_index],ts[eq_index,st_index],so[eq_index,st_index]=p,s,o 
+            
+            print ' Done with station %d and eq %d ' % (st_index,eq_index)
+    return tp,ts,so
