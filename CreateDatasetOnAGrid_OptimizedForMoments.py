@@ -10,7 +10,7 @@ mpl.style.use('ggplot')
 # 3166 4814 3910 - receiver at
 # Get the location grid for the potential earthquake origins:
 
-Ntensors = 50
+Ntensors = 150
 nx_locations = 3
 ny_locations = 3
 nz_locations = 15
@@ -35,12 +35,12 @@ sourcesDF =pd.DataFrame( {'X':xv.flatten(),'Y':yv.flatten(),'Z':zv.flatten(),'sr
 sourcesDF.index= range(sourcesDF.shape[0])
 sourcesDF.to_csv('sourcesDF.csv')
 
-Mxx = 6.15
-Myy = 10
-Mzz = 1.95E1
-Mxy = -3.43E1 
-Mxz = -3.61
-Myz = 3.41E1
+Mxx = 1
+Myy = 1
+Mzz = 1
+Mxy = 0
+Mxz = 0
+Myz = 0
 
 # get the moment tensor
 tensor = np.array([Mxx,Myy,Mzz,Mxy,Mxz,Myz])

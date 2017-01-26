@@ -18,7 +18,7 @@ for x in range(NClass): y.append("Class" + "%03d" % x)
 locations = y
 stations = ["0001","0002","0003"]
 y=[]
-NMoments = 50
+NMoments = 150
 for x in range(NMoments): y.append("M" + "%04d" % x)
     
     
@@ -30,8 +30,8 @@ trace_for_stats= obspy.read("./Class000/moment1/station0003/"+"B00101Z00.sac")
 ObservationMatrix = np.empty([NMoments*len(locations),trace_for_stats[0].stats.npts * len(stations)])
 ObservationMatrixPicks = np.empty([NMoments*len(locations),2 * len(stations)])
 ObservationMatrixFeatures = np.empty([NMoments*len(locations),6* len(stations)])
-ErrP = 0.0
-ErrS = 0.0
+ErrP = 0.02
+ErrS = 0.04
 Y = np.empty([NMoments*len(locations),1])
 LocationClass = -1
 nrow = 0

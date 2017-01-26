@@ -2,83 +2,26 @@
 from pyrocko import cake
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-import matplotlib.cm as cm
-mpl.style.use('ggplot')
-import os
-from LocationsOnGrid import LocationsOnGridSmall
-from MiscFunctions import GetPSArrivalRayTracingMC,getNonLinLocPhaseLine
-import obspy
+from MiscFunctions import GetPSArrivalRayTracingMC
+from joblib import Parallel, delayed
+import multiprocessing
+
 
 import time
-
-
-# Create a model for ray-tracing:
-Log = pd.read_csv('LogRepsol.csv')
-SourcesCSV = pd.read_csv('sourcesDF.csv') # Read the source locations
-
-Log =Log[Log.Depth <6000]
-z_layers = np.linspace(900,5000,30)/ 1000.
-z_layers[0] = 0
-
-Log['VpMean'] = pd.Series(np.ones(Log.shape[0]))
-Log['VsMean'] = pd.Series(np.ones(Log.shape[0]))
-
-
-Log.Depth=Log.Depth/1000
-Log.Vp=Log.Vp/1000
-Log.Vs=Log.Vs/1000
-NDFile = ''
-discontinuities=[]
-   
-for i in range(len(z_layers)-1):
-    mask =(Log.Depth>=z_layers[i]) & (Log.Depth<=z_layers[i+1])
-    if not(mask.any()):
-        break
-    Log.loc[mask,'VpMean'] = Log.loc[mask,'Vp'].mean()
-    Log.loc[mask,'VsMean'] = Log.loc[mask,'Vs'].mean()
-    Log.loc[mask,'RhoMean'] = Log.loc[mask,'Rho'].mean()
-    #Layer = Layer(ztop = z_layers[i],zbot = z_layers[i+1])
-    layer_strTop = "%.3f %.3f %.3f %.3f\n" % (
-                                           z_layers[i],Log.loc[mask,'Vp'].mean(),
-                                           Log.loc[mask,'Vs'].mean(),
-                                           Log.loc[mask,'Rho'].mean()
-                                           )
-    layer_strBot = "%.3f %.3f %.3f %.3f\n" % (
-                                           z_layers[i+1],Log.loc[mask,'Vp'].mean(),
-                                           Log.loc[mask,'Vs'].mean(),
-                                           Log.loc[mask,'Rho'].mean()
-                                           )
-    nameD = 'nd%d\n' % i  
-    discontinuities.append('nd%d' % i)                                          
-    NDFile = NDFile  + layer_strTop + layer_strBot + nameD
-Log.loc[Log.shape[0]-1,'VpMean']=Log.loc[Log.shape[0]-2,'VpMean']
-
-
-layer_strBot = "%.3f %.3f %.3f %.3f\n" % (
-                                           z_layers[i+1]*1.05,Log.loc[mask,'Vp'].mean(),
-                                           Log.loc[mask,'Vs'].mean(),
-                                           Log.loc[mask,'Rho'].mean()
-                                           )
-
-NDFile = NDFile + layer_strBot
-#################################################################################################################
 # Load the model
-with open(('RepsolHighRes.nd'),'w') as f:
-    f.write(NDFile)
+
 
 model =cake.load_model(('VpVs.nd'))
 
 
-
-#model =cake.load_model('VpVs.nd')
-MC = 100000
+# Number of iterations
+MC = 10000
 nLayers = 6
 pertVp = np.zeros((MC,nLayers))
 pertVs = np.zeros((MC,nLayers))
 tops= np.zeros(nLayers)
 bots = np.zeros(nLayers)
+# Standard deviation of the velocity in pct
 k=0.00001
 i=0
 MCDf=pd.DataFrame()
@@ -134,7 +77,13 @@ for iMC in range(MC):
                                                             sta_coords=stCoords[iSt,:],
                                                             eq_coords=np.array([4000,6000,3910]),
                                                             model=model)
-        print ' Done with station %d and MCiter %d ' % (iSt,iMC)
+    if (iMC % 1000) == 0:
+        print ' Percentage done : %3.2f ' % (100.0 *iMC/MC)
+num_cores = multiprocessing.cpu_count()
+results = Parallel(n_jobs=num_cores)(delayed(processInput)(i) for i in inputs)        
+        
+        
+        
         
 t1 = time.time()
 total = t1-t0  

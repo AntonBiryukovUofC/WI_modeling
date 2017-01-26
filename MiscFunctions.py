@@ -175,26 +175,38 @@ def GetPSArrivalRayTracing(sta_coords = np.array([0,0,0.0]), eq_coords =np.array
         print s_arrival
     return p_arrival,s_arrival,so_offset,model
 
-def GetPSArrivalRayTracingMC(sta_coords = np.array([0,0,0.0]), eq_coords =np.array([0,0,3900]),model=None):
+def GetPSArrivalRayTracingMC(sta_coords = np.array([0,0,0.0]), eq_coords =np.array([0,0,3900]),model=None,mode='POnly'):
     # play witht the Pyrocko modules
     from pyrocko import cake
-    import matplotlib
-    matplotlib.style.use('ggplot')
+ 
     #from LocationsOnGrid import LocationsOnGridSmall
     eq_depth = eq_coords[2]
     so_offset = np.linalg.norm(sta_coords[:2] - eq_coords[:2])
     #_,_,_,stCoords = LocationsOnGridSmall(receiver_name='receiver.dat',NX=1,NY = 1,NZ =1) # Get the receiver locations
     
     Distance = so_offset*cake.m2d
-    p_transmission_paths = model.arrivals(distances = [Distance],phases = [cake.PhaseDef('p')],zstart = eq_depth)
-    s_transmission_paths = model.arrivals(distances = [Distance],phases = [cake.PhaseDef('s')],zstart = eq_depth)
-    for rayP,rayS in zip(p_transmission_paths,s_transmission_paths):
+    
+    p_transmission_paths = model.arrivals(distances = [Distance],phases = [cake.PhaseDef('p')],zstart = eq_depth,zstop=10)
+    for rayP in p_transmission_paths:
         p_arrival  = rayP.t
-        print p_arrival
-        s_arrival  = rayS.t
-        print s_arrival
+        #print p_arrival
+    if len(p_transmission_paths)<1:
+        p_arrival = None
         
-    return p_arrival,s_arrival,so_offset,model
+    if not(mode == 'POnly'):
+        s_transmission_paths = model.arrivals(distances = [Distance],phases =   [cake.PhaseDef('s')],
+                                              zstart = eq_depth,zstop=10)
+        for rayS in s_transmission_paths:
+            s_arrival  = rayS.t
+            #print s_arrival
+    else:
+            s_transmission_paths=[]
+            
+    if len(s_transmission_paths)<1:
+        s_arrival = None
+        
+        
+    return p_arrival,s_arrival,so_offset
 
 
 def getAmplitudeEnvelopeFeatures(traceName = '/home/anton/WI_Models/AllTraces/M0055_station_0003_location_Class036_channel_Z.mseed',st=1.2,fn=2.2):
@@ -245,12 +257,13 @@ def getAmplitudeEnvelopeFeaturesReal(traceName = '/home/anton/WI_Models/AllTrace
     trace = obspy.read(traceName)
     if trace[0].stats.starttime.year < starttime.year:
         return None
+    trace.taper(type= "hann",max_percentage=0.2)    
+
+    trace.filter(type='bandpass',freqmin=fmin,freqmax=fmax)
     trace.trim(starttime = starttime,endtime = endtime)
     trace.normalize()
     trace.taper(type= "cosine",max_percentage=0.05)    
-    
-    trace.filter(type='bandpass',freqmin=fmin,freqmax=fmax)
-    
+    trace.plot(type='relative')
     #data_envelopeM = obspy.signal.filter.envelope(trace.data)
     TraceCopy  = trace[0].copy()
     envTrace = trace[0].copy()
@@ -281,7 +294,35 @@ def getAmplitudeEnvelopeFeaturesReal(traceName = '/home/anton/WI_Models/AllTrace
     
     return KurtosisEnvelopeDiff,StdEnvelope,MeanEnvelope,EnvelopeIntegral,EnergyRatio,zcFeature
 
+def getNonLinLocPhaseLine(de =obspy.UTCDateTime('2015-01-04T07:10:50.047000Z'),sta='WSK01',ch='Z',phase = 'P'):
+    # Get the Phase File:
+    string_phase="%6s %4s %4s %1s %6s %1s %s GAU %9.2e %9.2e %9.2e %9.2e\n"
+    
+    instr = 'BB'
+    
+    onset='?'
+    firstMotion='?'
+    errmag=0.0
+    coda=-1.0
+    amp=-1.0
+    period=-1.0
+    date = '%4d%02d%02d %02d%02d %7.4f' % (de.year,de.month,de.day,de.hour,de.minute,(de.second+de.microsecond*1e-6))
+    phase_complete = string_phase % (sta,instr,ch,onset,phase,firstMotion,date,errmag,coda,amp,period)
+    return phase_complete
+    
 
+def row_to_utm(row):
+    import utm
+
+    #print row.Latitude, row.Longitude
+    utmcoord = utm.from_latlon(row.Latitude, row.Longitude)
+    return utmcoord[0],utmcoord[1]
+    
+def toUTC(row):
+    import obspy
+    date_list=[row.Year,row.Month,row.Day,row.Hour,row.Minute,row.Second]
+    strUTC = obspy.UTCDateTime('%d-%02d-%02dT%02d:%02d:%2.3f' % tuple(date_list))
+    return strUTC
 
 
 

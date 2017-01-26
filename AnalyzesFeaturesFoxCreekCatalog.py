@@ -61,7 +61,7 @@ for ie,row in eventsCatalogSub.iterrows():
 
         else:
             res = getAmplitudeEnvelopeFeaturesReal(traceName = tracename,st=row['PSta%d' % ist],fn=row['SSta%d' % ist],
-                                starttime =obspy.UTCDateTime(row.UTCDate),endtime= obspy.UTCDateTime(row.UTCDate)+3.5 ,fmin=1,fmax=6)
+                                starttime =obspy.UTCDateTime(row.UTCDate),endtime= obspy.UTCDateTime(row.UTCDate)+3.5 ,fmin=1,fmax=20)
             if not(res == None):
                 featureSet[i,:] = res
                 
