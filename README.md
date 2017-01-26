@@ -1,6 +1,12 @@
 # WI_modeling, May 2016
-This repo is done for the purpose of implementing the modelling workflow based on waveform integration for earthquake waveform predicitons
-# General workflow for the modeling:
+This repo is done for the purpose of implementing the modelling workflow based on waveform integration for earthquake waveform predictions and velocity calibration using MCMC approach.
+
+Currently I am implementing the generalized Metropolis-Hastings MCMC to infer the velocity model and the elastic props of the layers in the toy example. Specifically, the codes in PythonMCMCForward.py are ray-tracing the travel times for P waves towards the stations from the earthquakes distributed withing some pre-defined volume.
+
+The priority now is to implement Metropolis - Hastings Algorithm for the example and learn the sensitivity of the results to the station distribution, number of ground truth events involved , etc.
+
+
+# General workflow for the modeling of the waveforms using freq-wavenumber integrator:
 model96 -> hprep96 -> hspec96 -> hpulse96 -> file96
 
 The program hprep96 creates a data file hspec96.dat for use by hspec96 to create the Green’s functions in the ω -distance space. The output of this program is a binary file, hspec96.grn, which is used by hpulse96 to convolve the response with the source time function to create file96 Green’s function time histories.
@@ -9,7 +15,7 @@ The program hprep96 creates a data file hspec96.dat for use by hspec96 to create
 
 Specifically, I would like to work on improving the earthquake source location by combining stochastic and deterministic approaches.
 
-My preliminary thought was to use the classifier, such as a neural network (ANN) to aid in constraining the volume in which the earthquake has potentially occurred. This classifier can be run on the waveform data from several seismic stations as an input, and then assign the xyz of the earthquake as a class.
+My preliminary thought was to use the classifier, such as KNN to aid in constraining the volume in which the earthquake has potentially occurred. This classifier can be run on the waveform data from several seismic stations as an input, and then assign the xyz of the earthquake as a class.
 
 How do I train the classifier? One way might be by running simulations with known source locations (XYZ or class) and form the training set from the synthetic waveforms. I can vary the moment tensor keeping the XYZ fixed of the event a little bit to achieve some variability in the features that would describe the same class.
 
