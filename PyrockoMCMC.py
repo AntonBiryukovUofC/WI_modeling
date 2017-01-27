@@ -21,10 +21,13 @@ def ChangeModel(model,new_m):
     return model
         
 #######################################################################
-
+np.random.seed(1234) # set the seed
 # Load the data which will be fitted 
 data = np.load('ForwardDataMCMC.npz')        
 tp,ts,so,stdf,eqdf = data['tp'],data['ts'],data['so'],data['stdf'],data['eqdf']
+eqdf = pd.DataFrame(data=eqdf,columns=['x','y','z'])
+stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
+
 # Noise on the arrivals :
 # Apply this noise on data:                
 t_noise = 0.035
@@ -32,20 +35,23 @@ k=tp.shape[0]
 sigma=np.diag([t_noise]*k)
 sigma_inv = np.linalg.inv(sigma)
 sigma_det = np.linalg.det(sigma)
-tp +=norm(loc=0,scale=t_noise,random_state=123).rvs(tp.shape)
+tp +=norm(loc=0,scale=t_noise).rvs(tp.shape)
 
 # Set up initial model:
 Vinit=4000
 proposal_width_vp = 500 # proposal width of the velocity
 proposal_width_z = 1000
 z1,z2=3000,5000
+   # Priors on interfaces and velocities:
+prior_z = uniform(loc=1,scale=7000)
+prior_vp = uniform(loc=1500,scale=6000)
 # model is V1,V2,V3,Z1,Z2 , Ztop =0 and Zbot=7000 are fixed values ( global top and bottom of the model)
 model_vector = {'Vp':[Vinit,Vinit,Vinit],'Ztop':[0,z1,z2],'Zbot':[z1,z2,7010]}
 current_m=model_vector
 model =cake.load_model(('MCMCTest.nd')) # <--- True model for the forward simulation.
 model=ChangeModel(model,model_vector)
             
-
+models=[]
 # Do initial forward model:
 sim_tp,_,_ = DoForwardModel(eqdf,stdf,model)
 # Calculate its likelihood:
@@ -61,9 +67,7 @@ for i in range(MCMCiter):
     mean = model_vector['Vp'] + [z1,z2]
     cov = [proposal_width_vp]*3 + [proposal_width_z]*2
     proposal = multivariate_normal(mean,cov)
-    # Priors on interfaces and velocities:
-    prior_z = uniform(loc=1,scale=7000)
-    prior_vp = uniform(loc=1500,scale=6000)
+ 
 
 #######################################################################
 # Calculate likelihood here for the proposed move:
@@ -73,6 +77,7 @@ for i in range(MCMCiter):
           
     proposal = multivariate_normal(mean,cov)
     proposed_m = proposal.rvs()
+    
     model_vector_new = {'Vp':proposed_m[0:3],
                         'Ztop':[0] + proposed_m[3:],
                         'Zbot':proposed_m[3:] + [7010]}
@@ -80,7 +85,7 @@ for i in range(MCMCiter):
 
     model_new=ChangeModel(model,model_vector_new) # Get a new model for the proposed move.
     sim_tp,_,_ = DoForwardModel(eqdf,stdf,model_new)
-    
+    returnn
     res_norm = np.dot(tp-sim_tp,np.dot(sigma_inv,tp-sim_tp))
     likelihood_proposed = 1.0/(np.sqrt(2*np.pi)**(k/2)*sigma_det)* np.exp(-0.5*res_norm)
 
@@ -104,7 +109,7 @@ for i in range(MCMCiter):
         current_m = model_vector
         model=model_new
         likelihood_current = likelihood_proposed
-    
+    models.append(model_vector)
     
 
 
