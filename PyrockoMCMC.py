@@ -2,7 +2,7 @@
 from pyrocko import cake
 import numpy as np
 import pandas as pd
-from MiscFunctions import DoForwardModel
+from MiscFunctions import DoForwardModel,GetPSArrivalRayTracingMC
 # For plotting / data wrangling
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -16,9 +16,20 @@ def ChangeModel(model,new_m):
     for l,new_zt,new_zb,new_vp in zip(model.layers(), new_m['Ztop'],
                                       new_m['Zbot'],new_m['Vp']) :
         l.mtop.vp=new_vp
+        l.mtop.rho=0.31*new_vp**(0.25)*1000
         l.ztop=new_zt
         l.zbot=new_zb
     return model
+    
+def ChangeModelFake(model,new_m):
+    
+    for l,new_zt,new_zb,new_vp in zip(model.layers(), new_m['Ztop'],
+                                      new_m['Zbot'],new_m['Vp']) :
+        l.mtop.vp=3500
+        l.mtop.rho=1.4*1000
+        l.ztop=new_zt
+        l.zbot=new_zb
+    return model    
         
 #######################################################################
 np.random.seed(1234) # set the seed
@@ -49,7 +60,12 @@ prior_vp = uniform(loc=1500,scale=6000)
 model_vector = {'Vp':[Vinit,Vinit,Vinit],'Ztop':[0,z1,z2],'Zbot':[z1,z2,7010]}
 current_m=model_vector
 model =cake.load_model(('MCMCTest.nd')) # <--- True model for the forward simulation.
-model=ChangeModel(model,model_vector)
+model=ChangeModelFake(model,model_vector)
+
+
+
+returnn
+
             
 models=[]
 # Do initial forward model:
@@ -118,7 +134,7 @@ for i in range(MCMCiter):
 
 
 
-#for l in model.layers():
-        #print l.ztop
+for l in model.layers():
+        print l.mbot.vp
 
 

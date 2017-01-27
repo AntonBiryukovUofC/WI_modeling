@@ -186,7 +186,7 @@ def GetPSArrivalRayTracingMC(sta_coords = np.array([0,0,0.0]), eq_coords =np.arr
     
     Distance = so_offset*cake.m2d
     
-    p_transmission_paths = model.arrivals(distances = [Distance],phases = [cake.PhaseDef('p')],zstart = eq_depth,zstop=10)
+    p_transmission_paths = model.arrivals(distances = [Distance],phases = [cake.PhaseDef('p')],zstart = eq_depth,zstop=sta_coords[2])
     for rayP in p_transmission_paths:
         p_arrival  = rayP.t
         #print p_arrival
@@ -195,7 +195,7 @@ def GetPSArrivalRayTracingMC(sta_coords = np.array([0,0,0.0]), eq_coords =np.arr
         
     if not(mode == 'POnly'):
         s_transmission_paths = model.arrivals(distances = [Distance],phases =   [cake.PhaseDef('s')],
-                                              zstart = eq_depth,zstop=10)
+                                              zstart = eq_depth,zstop=sta_coords[2])
         for rayS in s_transmission_paths:
             s_arrival  = rayS.t
             #print s_arrival
