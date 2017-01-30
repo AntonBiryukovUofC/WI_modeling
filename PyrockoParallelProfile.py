@@ -2,7 +2,7 @@
 from pyrocko import cake
 import numpy as np
 import pandas as pd
-from MiscFunctions import GetPSArrivalRayTracingMC
+from MiscFunctions import GetPSArrivalRayTracingMC,DoForwardModel
 from joblib import Parallel, delayed
 import multiprocessing
 
@@ -18,17 +18,17 @@ def GetRayTracingPar(input_list):
                                                             
                                 
 
-model =cake.load_model(('VpVs.nd'))
+model =cake.load_model(('MCMCTest.nd'))
+
+data = np.load('ForwardDataMCMC.npz')        
+tp,ts,so,stdf,eqdf = data['tp'],data['ts'],data['so'],data['stdf'],data['eqdf']
+eqdf = pd.DataFrame(data=eqdf,columns=['x','y','z'])
+stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
 
 
 # Number of iterations
 MC = 10000
-nLayers = 6
-       
-stCoords = np.array([[0, 0, 10],
-                      [2195, 8562, 10],
-                      [5679, 3792, 10],
-                      ])
+
 
 
 
@@ -36,18 +36,31 @@ stCoords = np.array([[0, 0, 10],
 # Time the calculations here !
 
 t0 = time.time()
-model =cake.load_model(('VpVs.nd'))
-input_list = [stCoords[0,:],np.array([4000,6000,3910]),model]
+input_list=[]
+N=20
+for ii in range(N):
+    results=[]
+    input_list=[]
+
+    for eq_index,rowEq in eqdf.iterrows():
+        eq_coords = np.array([rowEq.x,rowEq.y,rowEq.z])
+        for st_index,rowSt in stdf.iterrows():
+            stCoords=rowSt.values
+            eqCoords=rowEq.values
+            input_list.append([stCoords,eqCoords,model])
     
-inputs = [input_list for x in range(MC)]
-num_cores =multiprocessing.cpu_count()-2
-results = Parallel(n_jobs=num_cores)(delayed(GetRayTracingPar)(i) for i in inputs)        
-        
+    
+    inputs = input_list
+    num_cores =5
+    results = Parallel(n_jobs=num_cores)(delayed(GetRayTracingPar)(i) for i in inputs)        
+    print ' Done with iter %d  ' % (ii)
+    
         
         
         
 t1 = time.time()
 total = t1-t0  
+
 print 'Total time is %3.6f s' % total      
         
 '''

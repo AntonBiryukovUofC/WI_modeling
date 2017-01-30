@@ -339,5 +339,40 @@ def DoForwardModel(eqdf,stdf,model):
                                                model=model)
             tp[eq_index,st_index],ts[eq_index,st_index],so[eq_index,st_index]=p,s,o 
             
-            print ' Done with station %d and eq %d ' % (st_index,eq_index)
+     #       print ' Done with station %d and eq %d ' % (st_index,eq_index)
     return tp,ts,so
+
+def MakeModel(model_vector):
+    from pyrocko import cake
+    model1=cake.LayeredModel()
+    i=0
+
+    for vp,ztop,zbot in zip(model_vector['Vp'],model_vector['Ztop'],model_vector['Zbot']):
+    #    if i>0:
+     #       disc=cake.Discontinuity(z=ztop,name='zzz')
+      #      model1.append(disc)
+
+
+        vs=vp/1.7
+        rho=0.35*vp**(0.25)*1000
+        m=cake.Material(vp=vp,vs=vs,rho=rho,qp=10000,qs=10000)
+        if i==0:
+            disc=cake.Surface(0,m)
+            model1.append(disc)
+
+        layer=cake.HomogeneousLayer(ztop,zbot,m)
+        model1.append(layer)
+
+        i+=1
+    return model1
+
+def ChangeModel(model,new_m):
+    model._pathcache = {}
+    for l,new_zt,new_zb,new_vp in zip(model.layers(), new_m['Ztop'],
+                                      new_m['Zbot'],new_m['Vp']) :
+        l.mtop.vp=new_vp
+        l.mtop.rho=0.31*new_vp**(0.25)*1000
+        l.ztop=new_zt
+        l.zbot=new_zb
+        
+    return model

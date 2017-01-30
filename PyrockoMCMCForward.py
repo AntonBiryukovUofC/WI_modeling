@@ -44,37 +44,38 @@ sns.regplot(x='x',y='y',data = stdf,fit_reg=False,scatter_kws = {'s':60},ax=ax)
 sns.regplot(x='x',y='y',data = eqdf,fit_reg=False,scatter_kws = {'s':30},ax=ax,color='r')
 
 # Number of iterations
-MC = 10000
-
+N=20
 # Time the calculations here !
 
 t0 = time.time()
 model =cake.load_model(('MCMCTest.nd'))
 
-input_list = [stCoords[0,:],np.array([4000,6000,3910]),model]
-tp=np.zeros((Neq,Nstations))
-ts=np.zeros_like(tp)
-so=np.zeros_like(tp)
+for ii in range(N):
+    tp=np.zeros((Neq,Nstations))
+    ts=np.zeros_like(tp)
+    so=np.zeros_like(tp)
 
-#inputs = [input_list for x in range(MC)]
-#num_cores =multiprocessing.cpu_count()-2
-#results = Parallel(n_jobs=num_cores)(delayed(GetRayTracingPar)(i) for i in inputs)        
-for eq_index,rowEq in eqdf.iterrows():
-    eq_coords = np.array([rowEq.x,rowEq.y,rowEq.z])
-    for st_index,rowSt in stdf.iterrows():
-        # Get the time for P,S arrivals and offset
-        p,s,o= GetPSArrivalRayTracingMC(sta_coords=[rowSt.x,rowSt.y,rowSt.z],
-                                           eq_coords=eq_coords,
-                                           model=model)
-        tp[eq_index,st_index],ts[eq_index,st_index],so[eq_index,st_index]=p,s,o 
-        
-        print ' Done with station %d and eq %d ' % (st_index,eq_index)
+    #inputs = [input_list for x in range(MC)]
+    #num_cores =multiprocessing.cpu_count()-2
+    #results = Parallel(n_jobs=num_cores)(delayed(GetRayTracingPar)(i) for i in inputs)        
+    for eq_index,rowEq in eqdf.iterrows():
+        eq_coords = np.array([rowEq.x,rowEq.y,rowEq.z])
+        for st_index,rowSt in stdf.iterrows():
+            # Get the time for P,S arrivals and offset
+            p,s,o= GetPSArrivalRayTracingMC(sta_coords=[rowSt.x,rowSt.y,rowSt.z],
+                                               eq_coords=eq_coords,
+                                               model=model)
+            tp[eq_index,st_index],ts[eq_index,st_index],so[eq_index,st_index]=p,s,o 
+            
+            #print ' Done with station %d and eq %d ' % (st_index,eq_index)
+    print ' Done with iter %d  ' % (ii)
              
 
-np.savez('ForwardDataMCMC.npz',tp=tp,ts=ts,so=so,stdf=stdf,eqdf=eqdf)        
         
         
 t1 = time.time()
 total = t1-t0  
 print 'Total time is %3.6f s' % total      
+
+np.savez('ForwardDataMCMC.npz',tp=tp,ts=ts,so=so,stdf=stdf,eqdf=eqdf)        
  

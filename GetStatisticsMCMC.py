@@ -10,29 +10,6 @@ import seaborn as sns
 from scipy.stats import multivariate_normal,uniform,norm
 import time
 
-
-def ChangeModel(model,new_m):
-    model._pathcache = {}
-    for l,new_zt,new_zb,new_vp in zip(model.layers(), new_m['Ztop'],
-                                      new_m['Zbot'],new_m['Vp']) :
-        l.mtop.vp=new_vp
-        l.mtop.rho=0.31*new_vp**(0.25)*1000
-        l.ztop=new_zt
-        l.zbot=new_zb
-        
-    return model
-    
-def ChangeModelFake(model,new_m):
-    
-    for l,new_zt,new_zb,new_vp in zip(model.layers(), new_m['Ztop'],
-                                      new_m['Zbot'],new_m['Vp']) :
-        l.mtop.vp=3500.0
-        l.mtop.rho=1.4*1000
-        l.mbot.vp=3500.0
-        l.mbot.rho=1.4*1000
-        l.ztop=new_zt
-        l.zbot=new_zb
-    return model    
         
 #######################################################################
 np.random.seed(1234) # set the seed
@@ -116,27 +93,4 @@ i=0
 print t
 
 returnn
-
-
-
-
-
-
-for vp,ztop,zbot in zip(model_vector['Vp'],model_vector['Ztop'],model_vector['Zbot']):
-    #if i>0:
-        #disc=cake.Interface(z=ztop,name='zzz')
-        #model1.append(disc)
-
-
-    vs=vp/1.7
-    rho=0.35*vp**(0.25)*1000
-    m=cake.Material(vp=vp,vs=vs,rho=rho,qp=10000,qs=10000)
-    if i==0:
-        disc=cake.Surface(0,m)
-        model1.append(disc)
-
-    layer=cake.HomogeneousLayer(ztop,zbot,m)
-    model1.append(layer)
-
-    i+=1
 
