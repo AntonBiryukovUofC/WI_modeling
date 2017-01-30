@@ -63,7 +63,7 @@ res_norm = np.dot(dr,
 log_likelihood_current = np.log(1.0/(np.sqrt(2*np.pi)**(Neq*Nst/2))) - log_sigma_det + (-0.5*res_norm)
 #######################################################################
 k_accept=0
-MCMCiter = 4000
+MCMCiter = 4200
 
 for i in range(MCMCiter):
 #######################################################################
