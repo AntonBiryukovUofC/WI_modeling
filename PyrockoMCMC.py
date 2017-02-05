@@ -12,7 +12,7 @@ from scipy.stats import multivariate_normal,uniform,norm
 
 
 
-Likelihood_turn_off =True
+Likelihood_turn_off =False
 #######################################################################
 np.random.seed(1234) # set the seed
 # Load the data which will be fitted 
@@ -23,7 +23,7 @@ stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
 
 # Noise on the arrivals :
 # Apply this noise on data:                
-t_noise = 0.035
+t_noise = 0.1
 Neq=tp.shape[0]
 Nst=tp.shape[1]
 sigma=np.diag([t_noise**2]*Neq*Nst)
@@ -31,13 +31,13 @@ sigma_inv = np.linalg.inv(sigma)
 sigma_det = np.linalg.det(sigma)
 
 sign,log_sigma_det = np.linalg.slogdet(sigma)
-
+returnn
 tp +=norm(loc=0,scale=t_noise).rvs(tp.shape)
 
 # Set up initial model:
 Vinit=4000
-proposal_width_vp = 1000 # proposal width of the velocity
-proposal_width_z = 1000
+proposal_width_vp = 1200 # proposal width of the velocity
+proposal_width_z = 1100
 z1,z2=3000,5000
    # Priors on interfaces and velocities:
 prior_z = uniform(loc=1,scale=7000)
@@ -63,8 +63,8 @@ res_norm = np.dot(dr,
 log_likelihood_current = np.log(1.0/(np.sqrt(2*np.pi)**(Neq*Nst/2))) - log_sigma_det + (-0.5*res_norm)
 #######################################################################
 k_accept=0
-MCMCiter = 4200
-
+MCMCiter = 10000
+MCMCiter +=1
 for i in range(MCMCiter):
 #######################################################################
 # Set up the distributions:
@@ -86,7 +86,7 @@ for i in range(MCMCiter):
     
     proposed_m = list(sample_proposed)
     prior_new=prior_z.pdf(proposed_m[3:5]).prod()*prior_vp.pdf(proposed_m[0:3]).prod()
-    if prior_new == 0:
+    if (prior_new == 0):
         models.append(model_vector)
         print 'Zero Prior of the proposed move!'
         continue
@@ -116,8 +116,9 @@ for i in range(MCMCiter):
         log_likelihood_proposed=log_likelihood_current
     # Calculate the probability ratio:
     p_accept = np.log(prior_new)+log_likelihood_proposed - (np.log(prior_cur)+log_likelihood_current)
-    p_accept = np.exp(p_accept)
-    accept = np.random.rand() < np.exp(p_accept)
+    print p_accept
+    
+    accept = ( (np.log(np.random.rand()) - p_accept) < 0 )
     if accept:
         # We update the position
         k_accept+=1
