@@ -23,7 +23,7 @@ stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
 
 # Noise on the arrivals :
 # Apply this noise on data:                
-t_noise = 0.1
+t_noise = 0.04
 Neq=tp.shape[0]
 Nst=tp.shape[1]
 sigma=np.diag([t_noise**2]*Neq*Nst)
@@ -31,23 +31,21 @@ sigma_inv = np.linalg.inv(sigma)
 sigma_det = np.linalg.det(sigma)
 
 sign,log_sigma_det = np.linalg.slogdet(sigma)
-returnn
 tp +=norm(loc=0,scale=t_noise).rvs(tp.shape)
 
 # Set up initial model:
 Vinit=4000
-proposal_width_vp = 1200 # proposal width of the velocity
-proposal_width_z = 1100
+proposal_width_vp = 400 # proposal width of the velocity
+proposal_width_z = 400
 z1,z2=3000,5000
    # Priors on interfaces and velocities:
 prior_z = uniform(loc=1,scale=7000)
 prior_vp = uniform(loc=1500,scale=6000)
 # model is V1,V2,V3,Z1,Z2 , Ztop =0 and Zbot=7000 are fixed values ( global top and bottom of the model)
-model_vector = {'Vp':[Vinit,Vinit,Vinit],'Ztop':[0,z1,z2],'Zbot':[z1,z2,7010]}
+model_vector = {'Vp':[Vinit,Vinit,Vinit],'Ztop':[0,z1,z2],'Zbot':[z1,z2,9000]}
 current_m=model_vector
 #model =cake.load_model(('MCMCTest.nd')) # <--- True model for the forward simulation.
 model=MakeModel(model_vector)
-
 
 
 
@@ -63,8 +61,11 @@ res_norm = np.dot(dr,
 log_likelihood_current = np.log(1.0/(np.sqrt(2*np.pi)**(Neq*Nst/2))) - log_sigma_det + (-0.5*res_norm)
 #######################################################################
 k_accept=0
-MCMCiter = 10000
+MCMCiter = 400
 MCMCiter +=1
+
+proposed_array=np.zeros((MCMCiter,5))
+
 for i in range(MCMCiter):
 #######################################################################
 # Set up the distributions:
@@ -83,6 +84,9 @@ for i in range(MCMCiter):
     proposal = multivariate_normal(mean,cov)
     sample_proposed = proposal.rvs()
     sample_proposed[3:]=np.sort(sample_proposed[3:]) 
+    # SAve for debugging
+    proposed_array[i,:]=sample_proposed
+    
     
     proposed_m = list(sample_proposed)
     prior_new=prior_z.pdf(proposed_m[3:5]).prod()*prior_vp.pdf(proposed_m[0:3]).prod()
