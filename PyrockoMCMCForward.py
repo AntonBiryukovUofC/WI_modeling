@@ -17,9 +17,10 @@ import time
                                 
 NXeq,NYeq,NZeq = 5,5,3
 Neq = NXeq*NYeq*NZeq
+print ' Setting EQ coordinates...'
 xv,yv,zv,stationCoords =  LocationsOnGridSmall(receiver_name = 'receiver.dat',
-                                               NX = NXeq, NY=NYeq,NZ=NZeq,leftBottomCorner=[1000,1000],
-                                               rightTopCorner=[5000,5000],depthRange = [4700,6000])
+                                               NX = NXeq, NY=NYeq,NZ=NZeq,leftBottomCorner=[200,200],
+                                               rightTopCorner=[5000,5000],depthRange = [2500,6000])
 x_perturb = np.random.uniform(low=50,high=400,size =xv.shape)
 y_perturb = np.random.uniform(low=50,high=400,size =yv.shape)
 z_perturb= np.random.uniform(low=10,high=200,size =zv.shape)
@@ -44,11 +45,11 @@ sns.regplot(x='x',y='y',data = stdf,fit_reg=False,scatter_kws = {'s':60},ax=ax)
 sns.regplot(x='x',y='y',data = eqdf,fit_reg=False,scatter_kws = {'s':30},ax=ax,color='r')
 
 # Number of iterations
-N=20
+N=1
 # Time the calculations here !
-
+mname = 'MCMCTest-2D'
 t0 = time.time()
-model =cake.load_model(('MCMCTest.nd'))
+model =cake.load_model(('%s.nd' % mname))
 
 for ii in range(N):
     tp=np.zeros((Neq,Nstations))
@@ -77,5 +78,5 @@ t1 = time.time()
 total = t1-t0  
 print 'Total time is %3.6f s' % total      
 
-np.savez('ForwardDataMCMC.npz',tp=tp,ts=ts,so=so,stdf=stdf,eqdf=eqdf)        
+np.savez('Forward%s.npz' % mname,tp=tp,ts=ts,so=so,stdf=stdf,eqdf=eqdf)        
  

@@ -23,9 +23,9 @@ models=model_file['models']
 NMod=models.shape[0]
 ModelsDF=pd.DataFrame({'Vp1':[models[i]['Vp'][0] for i in range(NMod)],
                        'Vp2':[models[i]['Vp'][1] for i in range(NMod)],
-                       'Vp3':[models[i]['Vp'][2] for i in range(NMod)],
+                       #'Vp3':[models[i]['Vp'][2] for i in range(NMod)],
                        'Z1': [models[i]['Ztop'][1] for i in range(NMod)],
-                       'Z2': [models[i]['Ztop'][2] for i in range(NMod)],
+                      # 'Z2': [models[i]['Ztop'][2] for i in range(NMod)],
                       })
                       
 

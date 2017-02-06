@@ -16,14 +16,15 @@ Likelihood_turn_off =False
 #######################################################################
 np.random.seed(1234) # set the seed
 # Load the data which will be fitted 
-data = np.load('ForwardDataMCMC.npz')        
+mname = 'MCMCTest-2D'
+data = np.load('Forward%s.npz' % mname)        
 tp,ts,so,stdf,eqdf = data['tp'],data['ts'],data['so'],data['stdf'],data['eqdf']
 eqdf = pd.DataFrame(data=eqdf,columns=['x','y','z'])
 stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
 
 # Noise on the arrivals :
 # Apply this noise on data:                
-t_noise = 0.04
+t_noise = 0.07
 Neq=tp.shape[0]
 Nst=tp.shape[1]
 sigma=np.diag([t_noise**2]*Neq*Nst)
@@ -34,15 +35,17 @@ sign,log_sigma_det = np.linalg.slogdet(sigma)
 tp +=norm(loc=0,scale=t_noise).rvs(tp.shape)
 
 # Set up initial model:
-Vinit=4000
-proposal_width_vp = 400 # proposal width of the velocity
-proposal_width_z = 400
-z1,z2=3000,5000
+vLayers=[4000,4000]
+
+
+proposal_width_vp = 100 # proposal width of the velocity
+proposal_width_z = 80
+zLayers=[2000]
    # Priors on interfaces and velocities:
 prior_z = uniform(loc=1,scale=7000)
 prior_vp = uniform(loc=1500,scale=6000)
 # model is V1,V2,V3,Z1,Z2 , Ztop =0 and Zbot=7000 are fixed values ( global top and bottom of the model)
-model_vector = {'Vp':[Vinit,Vinit,Vinit],'Ztop':[0,z1,z2],'Zbot':[z1,z2,9000]}
+model_vector = {'Vp':vLayers,'Ztop':[0] + zLayers,'Zbot':zLayers + [9000]}
 current_m=model_vector
 #model =cake.load_model(('MCMCTest.nd')) # <--- True model for the forward simulation.
 model=MakeModel(model_vector)
@@ -58,13 +61,13 @@ dr=tp.flatten()-sim_tp.flatten()
 res_norm = np.dot(dr,
                   np.dot(sigma_inv,dr))
 #returnn
-log_likelihood_current = np.log(1.0/(np.sqrt(2*np.pi)**(Neq*Nst/2))) - log_sigma_det + (-0.5*res_norm)
+log_likelihood_current = np.log(1.0/(np.sqrt(2*np.pi)**(Neq*Nst))) - log_sigma_det + (-0.5*res_norm)
 #######################################################################
 k_accept=0
-MCMCiter = 400
+MCMCiter = 40000
 MCMCiter +=1
 
-proposed_array=np.zeros((MCMCiter,5))
+proposed_array=np.zeros((MCMCiter,len(vLayers)+len(zLayers)))
 
 for i in range(MCMCiter):
 #######################################################################
@@ -79,26 +82,26 @@ for i in range(MCMCiter):
 # Calculate likelihood here for the proposed move:
 # Calculate the proposed forward model :
     mean = current_m['Vp'] + current_m['Ztop'][1:]
-    cov = [proposal_width_vp**2]*3 + [proposal_width_z**2]*2
+    cov = [proposal_width_vp**2]*len(vLayers) + [proposal_width_z**2]*len(zLayers)
           
     proposal = multivariate_normal(mean,cov)
     sample_proposed = proposal.rvs()
-    sample_proposed[3:]=np.sort(sample_proposed[3:]) 
+    sample_proposed[len(vLayers):]=np.sort(sample_proposed[len(vLayers):]) 
     # SAve for debugging
     proposed_array[i,:]=sample_proposed
     
     
     proposed_m = list(sample_proposed)
-    prior_new=prior_z.pdf(proposed_m[3:5]).prod()*prior_vp.pdf(proposed_m[0:3]).prod()
+    prior_new=prior_z.pdf(proposed_m[len(vLayers):len(vLayers)+len(zLayers)]).prod()*prior_vp.pdf(proposed_m[0:len(vLayers)]).prod()
     if (prior_new == 0):
         models.append(model_vector)
         print 'Zero Prior of the proposed move!'
         continue
         
 
-    model_vector_new = {'Vp':proposed_m[0:3],
-                        'Ztop':[0] + proposed_m[3:],
-                        'Zbot':proposed_m[3:] + [7010]}
+    model_vector_new = {'Vp':proposed_m[0:len(vLayers)],
+                        'Ztop':[0] + proposed_m[len(vLayers):],
+                        'Zbot':proposed_m[len(vLayers):] + [9000]}
 
     
     model_new=MakeModel(model_vector_new) # Get a new model for the proposed move.
@@ -108,7 +111,7 @@ for i in range(MCMCiter):
     res_norm = np.dot(dr,
                   np.dot(sigma_inv,dr))
     #  likelihood_proposed = 1.0/(np.sqrt(2*np.pi)**(Neq*Nst/2)*sigma_det)* np.exp(-0.5*res_norm)
-    log_likelihood_proposed = np.log(1.0/(np.sqrt(2*np.pi)**(Neq*Nst/2))) - log_sigma_det + (-0.5*res_norm)
+    log_likelihood_proposed = np.log(1.0/(np.sqrt(2*np.pi)**(Neq*Nst))) - log_sigma_det + (-0.5*res_norm)
 
 
 
