@@ -31,6 +31,12 @@ ModelsDF=pd.DataFrame({'Vp1':[models[i]['Vp'][0] for i in range(NMod)],
                       })
 #Drop the burn-in samples 
 #ModelsDF=ModelsDF.drop(range(1000))
+
+
+
+
+returnn
+
 true_vals = [3100,4470,6200,2000,4000]
 
 prior_z = uniform(loc=1,scale=7000).rvs(0.5*ModelsDF.shape[0])
@@ -49,5 +55,4 @@ for i,ax_cur,true_val,prior,start in zip(ModelsDF.columns,ax,true_vals,priors,st
 
 
 fig.savefig('TestMCMC.png',dpi=300)
-returnn
 

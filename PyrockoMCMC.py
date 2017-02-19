@@ -8,7 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import multivariate_normal,uniform,norm
-
+from sklearn.externals import joblib        
 
 
 
@@ -16,7 +16,7 @@ Likelihood_turn_off =False
 #######################################################################
 np.random.seed(1234) # set the seed
 # Load the data which will be fitted 
-mname = 'MCMCTest-2D'
+mname = 'MCMCTest'
 data = np.load('Forward%s.npz' % mname)        
 tp,ts,so,stdf,eqdf = data['tp'],data['ts'],data['so'],data['stdf'],data['eqdf']
 eqdf = pd.DataFrame(data=eqdf,columns=['x','y','z'])
@@ -24,7 +24,7 @@ stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
 
 # Noise on the arrivals :
 # Apply this noise on data:                
-t_noise = 0.07
+t_noise = 0.09
 Neq=tp.shape[0]
 Nst=tp.shape[1]
 sigma=np.diag([t_noise**2]*Neq*Nst)
@@ -35,12 +35,12 @@ sign,log_sigma_det = np.linalg.slogdet(sigma)
 tp +=norm(loc=0,scale=t_noise).rvs(tp.shape)
 
 # Set up initial model:
-vLayers=[4000,4000]
+vLayers=[2700,4200,5700]
 
 
 proposal_width_vp = 100 # proposal width of the velocity
 proposal_width_z = 80
-zLayers=[2000]
+zLayers=[2200,3700]
    # Priors on interfaces and velocities:
 prior_z = uniform(loc=1,scale=7000)
 prior_vp = uniform(loc=1500,scale=6000)
@@ -64,11 +64,18 @@ res_norm = np.dot(dr,
 log_likelihood_current = np.log(1.0/(np.sqrt(2*np.pi)**(Neq*Nst))) - log_sigma_det + (-0.5*res_norm)
 #######################################################################
 k_accept=0
-MCMCiter = 40000
+MCMCiter = 60000
 MCMCiter +=1
 
 proposed_array=np.zeros((MCMCiter,len(vLayers)+len(zLayers)))
+ar=0.32
+LL=[]
+# open the PC component pickle, analyse the widths for the proposal
+filename = 'PCA3Layer.pkl'
+pca_model = joblib.load(filename)
 
+
+frac_of_sigma = 0.05
 for i in range(MCMCiter):
 #######################################################################
 # Set up the distributions:
@@ -81,11 +88,34 @@ for i in range(MCMCiter):
 #######################################################################
 # Calculate likelihood here for the proposed move:
 # Calculate the proposed forward model :
-    mean = current_m['Vp'] + current_m['Ztop'][1:]
-    cov = [proposal_width_vp**2]*len(vLayers) + [proposal_width_z**2]*len(zLayers)
-          
-    proposal = multivariate_normal(mean,cov)
-    sample_proposed = proposal.rvs()
+    #if ar>0.4:
+       # proposal_width_vp=proposal_width_vp*1
+       # proposal_width_z=proposal_width_z*1
+       # print ' INcreased the widths !'
+    #elif ar>=0.3:
+       # proposal_width_vp = 100 # proposal width of the velocity
+       # proposal_width_z = 80
+       # print ' The widths are back to normal!'
+    #else:
+     #   proposal_width_vp=proposal_width_vp*1
+      #  proposal_width_z=proposal_width_z*1
+       # print ' DEcreased the widths !'
+#    proposal_width_vp = 100 # proposal width of the velocity
+ #   proposal_width_z = 80
+       #
+    # Get the current mean.
+    mean = np.array(current_m['Vp'] + current_m['Ztop'][1:])
+    # Express it in the PC axes
+    mean_PCA = pca_model.transform(mean)
+    #cov = [proposal_width_vp**2]*len(vLayers) + [proposal_width_z**2]*len(zLayers)
+    # Set the covariance of the proposal as a fraction of the eigenvalue
+    cov_PCA = pca_model.explained_variance_ * frac_of_sigma**2
+    proposal = multivariate_normal(mean_PCA,cov_PCA)
+    # Sample from the proposal
+    sample_proposed_pca = proposal.rvs()
+    # Transform back to initial axes:
+    sample_proposed = pca_model.inverse_transform(sample_proposed_pca)
+    
     sample_proposed[len(vLayers):]=np.sort(sample_proposed[len(vLayers):]) 
     # SAve for debugging
     proposed_array[i,:]=sample_proposed
@@ -135,12 +165,13 @@ for i in range(MCMCiter):
         model=model_new
         log_likelihood_current = log_likelihood_proposed
     models.append(model_vector)
+    LL.append(log_likelihood_current)
     if (i % 200) ==0:
-        np.savez('models_a.npz',models=models)
+        np.savez('models_a.npz',models=models,LL=LL)
 
-
-
-
+    if i>50:
+        ar=1.0*k_accept/i
+    LL.append(log_likelihood_current)
 for l in model.layers():
         print l.mbot.vp
 
