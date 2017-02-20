@@ -18,7 +18,7 @@ data = np.load('ForwardDataMCMC.npz')
 tp,ts,so,stdf,eqdf = data['tp'],data['ts'],data['so'],data['stdf'],data['eqdf']
 eqdf = pd.DataFrame(data=eqdf,columns=['x','y','z'])
 stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
-model_file = np.load('models_a.npz')
+model_file = np.load('models_PCA.npz')
 models=model_file['models']
 NMod=models.shape[0]
 ModelsDF=pd.DataFrame({'Vp1':[models[i]['Vp'][0] for i in range(NMod)],

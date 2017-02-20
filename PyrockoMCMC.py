@@ -64,7 +64,7 @@ res_norm = np.dot(dr,
 log_likelihood_current = np.log(1.0/(np.sqrt(2*np.pi)**(Neq*Nst))) - log_sigma_det + (-0.5*res_norm)
 #######################################################################
 k_accept=0
-MCMCiter = 60000
+MCMCiter = 40000
 MCMCiter +=1
 
 proposed_array=np.zeros((MCMCiter,len(vLayers)+len(zLayers)))
@@ -75,7 +75,7 @@ filename = 'PCA3Layer.pkl'
 pca_model = joblib.load(filename)
 
 
-frac_of_sigma = 0.05
+frac_of_sigma = 0.09
 for i in range(MCMCiter):
 #######################################################################
 # Set up the distributions:
@@ -106,16 +106,16 @@ for i in range(MCMCiter):
     # Get the current mean.
     mean = np.array(current_m['Vp'] + current_m['Ztop'][1:])
     # Express it in the PC axes
-    mean_PCA = pca_model.transform(mean)
+    mean_PCA = pca_model.transform(mean.reshape(1,-1)).squeeze()
     #cov = [proposal_width_vp**2]*len(vLayers) + [proposal_width_z**2]*len(zLayers)
     # Set the covariance of the proposal as a fraction of the eigenvalue
     cov_PCA = pca_model.explained_variance_ * frac_of_sigma**2
+    
     proposal = multivariate_normal(mean_PCA,cov_PCA)
     # Sample from the proposal
     sample_proposed_pca = proposal.rvs()
     # Transform back to initial axes:
-    sample_proposed = pca_model.inverse_transform(sample_proposed_pca)
-    
+    sample_proposed = pca_model.inverse_transform(sample_proposed_pca.reshape(1,-1)).squeeze()
     sample_proposed[len(vLayers):]=np.sort(sample_proposed[len(vLayers):]) 
     # SAve for debugging
     proposed_array[i,:]=sample_proposed
@@ -127,8 +127,7 @@ for i in range(MCMCiter):
         models.append(model_vector)
         print 'Zero Prior of the proposed move!'
         continue
-        
-
+    # Convert to np array
     model_vector_new = {'Vp':proposed_m[0:len(vLayers)],
                         'Ztop':[0] + proposed_m[len(vLayers):],
                         'Zbot':proposed_m[len(vLayers):] + [9000]}
@@ -167,7 +166,7 @@ for i in range(MCMCiter):
     models.append(model_vector)
     LL.append(log_likelihood_current)
     if (i % 200) ==0:
-        np.savez('models_a.npz',models=models,LL=LL)
+        np.savez('models_PCA.npz',models=models,LL=LL,proposed_array=proposed_array)
 
     if i>50:
         ar=1.0*k_accept/i

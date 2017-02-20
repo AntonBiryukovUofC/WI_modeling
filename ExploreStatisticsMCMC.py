@@ -26,11 +26,11 @@ pca_vec = PCA(n_components=2).fit(Xtrain)
 newXtrain = pca_vec.transform(Xtrain)
 xnew=newXtrain[:,0]
 ynew=newXtrain[:,1]
-fig,ax = plt.subplots(figsize=(10,10),nrows=2)
-ax[0].scatter(x,y)
-ax[0].axis('equal')
-ax[1].scatter(xnew,ynew)
-ax[1].axis('equal')
+#fig,ax = plt.subplots(figsize=(10,10),nrows=2)
+#ax[0].scatter(x,y)
+#ax[0].axis('equal')
+#ax[1].scatter(xnew,ynew)
+#ax[1].axis('equal')
 x_test = np.array([[30,40,50,-20],[0,0,0,0]]).T
 x_inv = pca_vec.inverse_transform(x_test)
 
@@ -63,12 +63,12 @@ _ = joblib.dump(pca_model, filename, compress=3)
 
 
 
-returnn
+#returnn
 data = np.load('ForwardDataMCMC.npz')        
 tp,ts,so,stdf,eqdf = data['tp'],data['ts'],data['so'],data['stdf'],data['eqdf']
 eqdf = pd.DataFrame(data=eqdf,columns=['x','y','z'])
 stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
-model_file = np.load('models_a.npz')
+model_file = np.load('models_PCA.npz')
 models=model_file['models']
 NMod=models.shape[0]
 ModelsDF=pd.DataFrame({'Vp1':[models[i]['Vp'][0] for i in range(NMod)],
@@ -102,10 +102,10 @@ covm=np.corrcoef(ModelMatrix.T)
 
 
 #g = sns.pairplot(ModelsDF, kind="reg")
-#plt.imshow(np.abs(covm),vmin=0.5,vmax=1,interpolation='None')
+plt.imshow(np.abs(covm),vmin=0.5,vmax=1,interpolation='None')
 
-#g = sns.PairGrid(ModelsDF)
-#g.map(sns.kdeplot)
+g = sns.PairGrid(ModelsDF)
+g.map(sns.kdeplot)
 
 #fig.savefig('TestMCMC.png',dpi=300)
 returnn
