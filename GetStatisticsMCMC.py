@@ -20,6 +20,7 @@ eqdf = pd.DataFrame(data=eqdf,columns=['x','y','z'])
 stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
 model_file = np.load('models_PCA.npz')
 models=model_file['models']
+LL=model_file['LL']
 NMod=models.shape[0]
 ModelsDF=pd.DataFrame({'Vp1':[models[i]['Vp'][0] for i in range(NMod)],
                        'Vp2':[models[i]['Vp'][1] for i in range(NMod)],
@@ -33,8 +34,8 @@ ModelsDF=pd.DataFrame({'Vp1':[models[i]['Vp'][0] for i in range(NMod)],
 #ModelsDF=ModelsDF.drop(range(1000))
 true_vals = [3100,4470,6200,2000,4000]
 
-prior_z = uniform(loc=1,scale=7000).rvs(0.5*ModelsDF.shape[0])
-prior_vp = uniform(loc=1500,scale=6000).rvs(0.5*ModelsDF.shape[0])
+prior_z = uniform(loc=1500,scale=3500).rvs(0.5*ModelsDF.shape[0])
+prior_vp = uniform(loc=1500,scale=4300).rvs(0.5*ModelsDF.shape[0])
 priors = [prior_vp]*3+[prior_z]*2
 starts = [4000,4000,5000,3000,5000]
 fig,ax=plt.subplots(nrows=5,ncols=1,figsize=(8,13))

@@ -15,15 +15,15 @@ import seaborn as sns
 import time
                                                             
                                 
-NXeq,NYeq,NZeq = 5,5,3
+NXeq,NYeq,NZeq = 3,3,3
 Neq = NXeq*NYeq*NZeq
 print ' Setting EQ coordinates...'
 xv,yv,zv,stationCoords =  LocationsOnGridSmall(receiver_name = 'receiver.dat',
                                                NX = NXeq, NY=NYeq,NZ=NZeq,leftBottomCorner=[200,200],
                                                rightTopCorner=[5000,5000],depthRange = [4300,4900])
-x_perturb = np.random.uniform(low=50,high=400,size =xv.shape)
-y_perturb = np.random.uniform(low=50,high=400,size =yv.shape)
-z_perturb= np.random.uniform(low=10,high=200,size =zv.shape)
+x_perturb = np.random.uniform(low=150,high=700,size =xv.shape)
+y_perturb = np.random.uniform(low=150,high=700,size =yv.shape)
+z_perturb= np.random.uniform(low=100,high=200,size =zv.shape)
 xv +=x_perturb
 yv+=y_perturb
 zv+=z_perturb

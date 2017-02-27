@@ -24,7 +24,7 @@ stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
 
 # Noise on the arrivals :
 # Apply this noise on data:                
-t_noise = 0.09
+t_noise = 0.08
 Neq=tp.shape[0]
 Nst=tp.shape[1]
 sigma=np.diag([t_noise**2]*Neq*Nst)
@@ -42,8 +42,8 @@ proposal_width_vp = 100 # proposal width of the velocity
 proposal_width_z = 80
 zLayers=[2200,3700]
    # Priors on interfaces and velocities:
-prior_z = uniform(loc=1,scale=7000)
-prior_vp = uniform(loc=1500,scale=6000)
+prior_z = uniform(loc=1500,scale=3500)
+prior_vp = uniform(loc=2500,scale=4300)
 # model is V1,V2,V3,Z1,Z2 , Ztop =0 and Zbot=7000 are fixed values ( global top and bottom of the model)
 model_vector = {'Vp':vLayers,'Ztop':[0] + zLayers,'Zbot':zLayers + [9000]}
 current_m=model_vector
@@ -75,7 +75,7 @@ filename = 'PCA3Layer.pkl'
 pca_model = joblib.load(filename)
 
 
-frac_of_sigma = 0.09
+frac_of_sigma = 0.15
 for i in range(MCMCiter):
 #######################################################################
 # Set up the distributions:
@@ -166,7 +166,7 @@ for i in range(MCMCiter):
     models.append(model_vector)
     LL.append(log_likelihood_current)
     if (i % 200) ==0:
-        np.savez('models_PCA.npz',models=models,LL=LL,proposed_array=proposed_array)
+        np.savez('models_PCA.npz',models=models,LL=LL,proposed_array=proposed_array,k_accept=k_accept)
 
     if i>50:
         ar=1.0*k_accept/i
