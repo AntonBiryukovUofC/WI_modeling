@@ -14,7 +14,8 @@ import seaborn as sns
 
 import time
                                                             
-                                
+np.random.seed(seed=1)
+                       
 NXeq,NYeq,NZeq = 3,3,3
 Neq = NXeq*NYeq*NZeq
 print ' Setting EQ coordinates...'
@@ -31,7 +32,6 @@ zv+=z_perturb
 # stCoords - create on random
 print 'Setting the station coordinates...'
 Nstations=5
-np.random.seed(seed=1)
 x = np.random.uniform(low=200,high = 7000,size =Nstations)
 y = np.random.uniform(low=200,high = 7000,size =Nstations)
 z = 10*np.ones_like(x)
@@ -45,9 +45,9 @@ sns.regplot(x='x',y='y',data = stdf,fit_reg=False,scatter_kws = {'s':60},ax=ax)
 sns.regplot(x='x',y='y',data = eqdf,fit_reg=False,scatter_kws = {'s':30},ax=ax,color='r')
 
 # Number of iterations
-N=1
+N=20
 # Time the calculations here !
-mname = 'MCMCTest'
+mname = 'MCMCTest1'
 t0 = time.time()
 model =cake.load_model(('%s.nd' % mname))
 
