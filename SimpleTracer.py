@@ -109,7 +109,7 @@ sns.regplot(x='x',y='y',data = eqdf,fit_reg=False,scatter_kws = {'s':30},ax=ax,c
 vels = np.array([3500,3500,3500])
 rhos = np.array([2.32,2.55,2.75])
 depths = np.array([2000,4000])
-N=20
+N=40
 
 t0 = time.time()
 
