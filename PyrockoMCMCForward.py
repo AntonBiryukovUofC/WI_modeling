@@ -45,9 +45,9 @@ sns.regplot(x='x',y='y',data = stdf,fit_reg=False,scatter_kws = {'s':60},ax=ax)
 sns.regplot(x='x',y='y',data = eqdf,fit_reg=False,scatter_kws = {'s':30},ax=ax,color='r')
 
 # Number of iterations
-N=40
+N=3
 # Time the calculations here !
-mname = 'MCMCTest1'
+mname = 'MCMCTest'
 t0 = time.time()
 model =cake.load_model(('%s.nd' % mname))
 
