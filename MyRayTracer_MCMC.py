@@ -2,7 +2,7 @@
 from pyrocko import cake
 import numpy as np
 import pandas as pd
-from MiscFunctions import DoForwardModel_MyTracer,GetPSArrivalRayTracingMC,
+from MiscFunctions import DoForwardModel_MyTracer
 # For plotting / data wrangling
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -37,27 +37,24 @@ sign,log_sigma_det = np.linalg.slogdet(sigma)
 tp +=norm(loc=0,scale=t_noise).rvs(tp.shape)
 
 # Set up initial model:
-vLayers=[2700,4200,5700]
+vLayers=np.array([2700,4200,5700])
 
 
 proposal_width_vp = 100 # proposal width of the velocity
 proposal_width_z = 80
-zLayers=[2200,3700]
+zLayers=np.array([2200,3700])
    # Priors on interfaces and velocities:
 prior_z = uniform(loc=1500,scale=3500)
 prior_vp = uniform(loc=2500,scale=4300)
 # model is V1,V2,V3,Z1,Z2 , Ztop =0 and Zbot=7000 are fixed values ( global top and bottom of the model)
-model_vector = {'Vp':vLayers,'Ztop':[0] + zLayers,'Zbot':zLayers + [9000]}
-current_m=model_vector
 #model =cake.load_model(('MCMCTest.nd')) # <--- True model for the forward simulation.
-model=MakeModel(model_vector)
 
 
 
-            
-models=[]
+vels = vLayers
+depths=zLayers
 # Do initial forward model:
-sim_tp,_,_ = DoForwardModel(eqdf,stdf,model)
+sim_tp,so = DoForwardModel_MyTracer(eqdf,stdf,vels,depths)
 # Calculate its likelihood:
 dr=tp.flatten()-sim_tp.flatten()
 res_norm = np.dot(dr,
@@ -75,7 +72,7 @@ LL=np.zeros(MCMCiter)
 # open the PC component pickle, analyse the widths for the proposal
 filename = 'PCA3Layer.pkl'
 pca_model = joblib.load(filename)
-
+models = np.zeros((MCMCiter,len(vLayers)+len(zLayers)))
 
 frac_of_sigma = 0.15
 for i in range(MCMCiter):
@@ -106,7 +103,7 @@ for i in range(MCMCiter):
  #   proposal_width_z = 80
        #
     # Get the current mean.
-    mean = np.array(current_m['Vp'] + current_m['Ztop'][1:])
+    mean = np.hstack((vels,depths))
     # Express it in the PC axes
     mean_PCA = pca_model.transform(mean.reshape(1,-1)).squeeze()
     #cov = [proposal_width_vp**2]*len(vLayers) + [proposal_width_z**2]*len(zLayers)
@@ -123,10 +120,13 @@ for i in range(MCMCiter):
     proposed_array[i,:]=sample_proposed
     
     
-    proposed_m = list(sample_proposed)
+    proposed_m = sample_proposed
     prior_new=prior_z.pdf(proposed_m[len(vLayers):len(vLayers)+len(zLayers)]).prod()*prior_vp.pdf(proposed_m[0:len(vLayers)]).prod()
     if (prior_new == 0):
-        models.append(model_vector)
+        # Zero prior, not moving , adding the old model
+        models[i,0:len(vLayers)]=vels
+        models[i,len(vLayers):len(vLayers)+len(zLayers)]=depths
+        
         print 'Zero Prior of the proposed move!'
         continue
     # Convert to np array
@@ -135,7 +135,7 @@ for i in range(MCMCiter):
     vels_new = proposed_m[0:len(vLayers)]
     depths_new = proposed_m[len(vLayers):]
     
-    sim_tp,_,_ = DoForwardModel_MyTracer(eqdf,stdf,vels_new,depths_new,rhos)
+    sim_tp,so = DoForwardModel_MyTracer(eqdf,stdf,vels_new,depths_new)
     print ' Forward model for %d sample done ' % i
     dr=tp.flatten()-sim_tp.flatten()
     res_norm = np.dot(dr,
@@ -147,7 +147,7 @@ for i in range(MCMCiter):
 
     # Calculate prior probabilities for current_m and proposed_m:
     # current
-    prior_cur = prior_z.pdf(current_m['Ztop'][1:]).prod()*prior_vp.pdf(current_m['Vp']).prod()
+    prior_cur = prior_z.pdf(depths).prod()*prior_vp.pdf(vels).prod()
     # proposed
     if Likelihood_turn_off:
         log_likelihood_proposed=log_likelihood_current
@@ -160,17 +160,22 @@ for i in range(MCMCiter):
         # We update the position
         k_accept+=1
         print ' Proposal accepted %d out of %d ' %(k_accept,i)
-        model_vector = model_vector_new
-        current_m = model_vector
-        model=model_new
+        vels=vels_new
+        depths=depths_new
+        
+        
         log_likelihood_current = log_likelihood_proposed
-    models.append(model_vector)
+    # Add the model into i-th place :
+    models[i,0:len(vLayers)]=vels
+    models[i,len(vLayers):len(vLayers)+len(zLayers)]=depths
+    
+    
     LL[i] = log_likelihood_current
-    if (i % 200) ==0:
+    if (i % 400) ==0:
         np.savez('models_PCA.npz',models=models,LL=LL,proposed_array=proposed_array,k_accept=k_accept)
 
     if i>50:
         ar=1.0*k_accept/i
 
-
+    returnn
 
