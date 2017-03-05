@@ -121,7 +121,7 @@ for i in range(MCMCiter):
        #
        
        
-    if i >NPCA+10:   
+    if i >1*NPCA+10:   
         # Get the current mean of the proposal.
         mean = np.hstack((vels,depths))
         # Express it in the PC axes
@@ -144,15 +144,13 @@ for i in range(MCMCiter):
         # Transform back to initial axes:
         sample_proposed = pca_model.inverse_transform(sample_proposed_pca.reshape(1,-1)).squeeze()
     else:
-        print 'Sampling from non-PCA..'
+        #print 'Sampling from non-PCA..'
         mean = list(vels) + list(depths)
         cov = [proposal_width_vp**2]*3 + [proposal_width_z**2]*2
         sample_proposed = multivariate_normal(mean,cov).rvs()
 
     
     # Sort the depths
-    
-    
     
     sample_proposed[len(vLayers):]=np.sort(sample_proposed[len(vLayers):]) 
     
@@ -192,20 +190,20 @@ for i in range(MCMCiter):
     # current
     prior_cur = prior_z.pdf(depths).prod()*prior_vp.pdf(vels).prod()
     # proposed
-    if Likelihood_turn_off:
-        log_likelihood_proposed=log_likelihood_current
+    #if Likelihood_turn_off:
+     #   log_likelihood_proposed=log_likelihood_current
     # Calculate the probability ratio:
     p_accept = np.log(prior_new)+log_likelihood_proposed - (np.log(prior_cur)+log_likelihood_current)
     print p_accept
-    
-    accept = ( (np.log(np.random.rand()) - p_accept) < 0 )
+    if np.isnan(p_accept):
+        p_accept=-1000
+    accept = ( (np.log(np.random.rand()) - p_accept) <= 0 )
     if accept:
         # We update the position
         k_accept+=1
         print ' Proposal accepted %d out of %d ' %(k_accept,i)
         vels=vels_new
-        depths=depths_new
-        
+        depths=depths_new      
         
         log_likelihood_current = log_likelihood_proposed
     # Add the model into i-th place :
@@ -220,19 +218,18 @@ for i in range(MCMCiter):
         pca_model = PCA().fit(ModelMatrix)
        
 
-    if i> 50 and i> NPCA:
-        ar=1.0*k_accept/(i)
+    #if i> 50 and i> NPCA:
+     #   ar=1.0*k_accept/(i)
 
-        if ar>0.4:
-            frac_of_sigma=frac_of_sigma*1.1
+        #if ar>0.4:
+            #frac_sigma=
         #proposal_width_vp=proposal_width_vp*1
        # proposal_width_z=proposal_width_z*1
-            print ' Increased the widths !'
-        elif ar<0.2:
-            frac_of_sigma=frac_of_sigma*0.9
+           # print ' Increased the widths !'
+        #elif ar<0.2:
        # proposal_width_vp = 100 # proposal width of the velocity
        # proposal_width_z = 80
-            print ' Decreased the widths!'
+            #print ' Decreased the widths!'
     
 
     #returnn

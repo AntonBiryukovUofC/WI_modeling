@@ -27,7 +27,7 @@ eqdf = pd.DataFrame(data=eqdf,columns=['x','y','z'])
 stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
 
 model_file = np.load('models_PCA.npz')
-burn_in = 500
+burn_in = 0
 
 models=model_file['models']
 FinalIter = model_file['iter']
@@ -149,9 +149,9 @@ for i in range(tp_array.shape[1]):
     hist_data = np.vstack((hist_data,hist_data)).T
     bins = (bins[0:-1]+bins[1:])/2.0
 
-    x,y = np.meshgrid([i-0.5,i+0.5],bins)
+    x,y = np.meshgrid([i-0.25,i+0.25],bins)
     ax_data.pcolormesh(x,y,hist_data,vmin=0,vmax=hist_data.max(),cmap=cm.jet,shading='gouraud')
-    ax_data.scatter(i,tp.flatten()[i],c='k')
+    ax_data.scatter(i,tp.flatten()[i],c='k',s=30)
 ax_data.set_xlim([0,np.size(tp)])
 ax_data.set_ylim([0.9,2.1])
 
