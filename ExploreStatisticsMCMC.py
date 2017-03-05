@@ -1,6 +1,8 @@
 # play witht the Pyrocko modules
 from pyrocko import cake
 import numpy as np
+from matplotlib import cm
+
 import pandas as pd
 from MiscFunctions import DoForwardModel,GetPSArrivalRayTracingMC,MakeModel
 # For plotting / data wrangling

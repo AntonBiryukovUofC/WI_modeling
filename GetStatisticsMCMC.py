@@ -2,6 +2,8 @@
 from pyrocko import cake
 import numpy as np
 import pandas as pd
+from matplotlib import cm
+
 from sklearn.decomposition import PCA
 from sklearn.externals import joblib        
 import pylab as pl
@@ -16,7 +18,7 @@ import time
 import matplotlib.collections as mc
         
 #######################################################################
-np.random.seed(1234) # set the seed
+np.random.seed(1) # set the seed
 # Load the data which will be fitted 
 data = np.load('ForwardMCMCTest.npz')        
 tp,ts,so,stdf,eqdf = data['tp'],data['ts'],data['so'],data['stdf'],data['eqdf']
@@ -24,12 +26,15 @@ tp,ts,so,stdf,eqdf = data['tp'],data['ts'],data['so'],data['stdf'],data['eqdf']
 eqdf = pd.DataFrame(data=eqdf,columns=['x','y','z'])
 stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
 
-model_file = np.load('models_PCA_final_mytracer.npz')
+model_file = np.load('models_PCA.npz')
 burn_in = 500
 
 models=model_file['models']
 FinalIter = model_file['iter']
 LL=model_file['LL'][burn_in:FinalIter]
+tp_array=model_file['tp_array'][burn_in:FinalIter]
+log_likelihood_true = model_file['LL_true']
+
 NMod=models.shape[0]
 ModelsDF=pd.DataFrame({'Vp1':models[burn_in:FinalIter,0],
                        'Vp2':models[burn_in:FinalIter,1],
@@ -57,6 +62,7 @@ for i,ax_cur,true_val,prior,start in zip(ModelsDF.columns,ax,true_vals,priors,st
     
     ax_cur.legend(['True value','Init value','Hist of %s' % i, 'Prior hist'])
 
+fig.savefig('MCMCHist.png')
 
 ModelMatrix = ModelsDF.as_matrix()
 
@@ -127,13 +133,30 @@ ax3.scatter(5000*np.ones(eqdf.shape[0]),eqdf.z,s=30,c = 'r')
 ax3.invert_yaxis()
 fig2.savefig('VelProfileMCMC.png',dpi=300)
 #ax2.autoscale()
-
-fig4 = plt.figure(figsize = (8,6))
-ModelsDF.plot(fig=fig4,subplots=True)
+# Plot the chain elements history
+fig4,ax4 = plt.subplots(figsize = (8,6))
+ModelsDF.plot(ax=ax4,subplots=True)
 fig4.savefig('TimeHistoryChain.png')
 #fig2.savefig('VelProfileMCMC.png',dpi=300)
 
+# Plot the datafit:
+fig_data,ax_data = plt.subplots(figsize = (24,10))
 
+for i in range(tp_array.shape[1]):
+    tp_slice = tp_array[:,i]
+    tp_slice=tp_slice[(~np.isnan(tp_slice)) & (tp_slice > 0) ]
+    hist_data,bins = np.histogram(tp_slice,bins = 150,normed=True)
+    hist_data = np.vstack((hist_data,hist_data)).T
+    bins = (bins[0:-1]+bins[1:])/2.0
+
+    x,y = np.meshgrid([i-0.5,i+0.5],bins)
+    ax_data.pcolormesh(x,y,hist_data,vmin=0,vmax=hist_data.max(),cmap=cm.jet,shading='gouraud')
+    ax_data.scatter(i,tp.flatten()[i],c='k')
+ax_data.set_xlim([0,np.size(tp)])
+ax_data.set_ylim([0.9,2.1])
+
+fig_data.savefig('DataFit.png')
+  
 
 
 returnn
