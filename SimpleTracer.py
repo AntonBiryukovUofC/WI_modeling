@@ -7,16 +7,17 @@ import pandas as pd
 import time
 from MiscFunctions import GetHjVjRhoj,costFunc,CalculatePTime,DoForwardModel_MyTracer
 
+mname = 'MCMCTest'
 
 
-np.random.seed(seed=1)
+np.random.seed(seed=12)
                         
 NXeq,NYeq,NZeq = 3,3,3
 Neq = NXeq*NYeq*NZeq
 print ' Setting EQ coordinates...'
 xv,yv,zv,stationCoords =  LocationsOnGridSmall(receiver_name = 'receiver.dat',
-                                               NX = NXeq, NY=NYeq,NZ=NZeq,leftBottomCorner=[200,200],
-                                               rightTopCorner=[5000,5000],depthRange = [4300,4900])
+                                               NX = NXeq, NY=NYeq,NZ=NZeq,leftBottomCorner=[200,2000],
+                                               rightTopCorner=[5000,5000],depthRange = [3600,4500])
 x_perturb = np.random.uniform(low=150,high=700,size =xv.shape)
 y_perturb = np.random.uniform(low=150,high=700,size =yv.shape)
 z_perturb= np.random.uniform(low=100,high=200,size =zv.shape)
@@ -26,25 +27,25 @@ zv+=z_perturb
 #returnn
 # stCoords - create on random
 print 'Setting the station coordinates...'
-Nstations=5
-x = np.random.uniform(low=200,high = 7000,size =Nstations)
-y = np.random.uniform(low=200,high = 7000,size =Nstations)
+Nstations=7
+x = np.linspace(200,6000,Nstations)
+y = np.random.uniform(low=200,high = 6000,size =Nstations)
 z = 10*np.ones_like(x)
 stCoords = np.stack((x,y,z),axis=1)
 # Throw the coordinates of the stations and the earthquakes into corresponding DataFrames
 stdf=pd.DataFrame({'x':x,'y':y,'z':z})
 eqdf=pd.DataFrame({'x':xv.flatten(),'y':yv.flatten(),'z':zv.flatten()})
-
+#returnn
 fig, ax = plt.subplots()
 sns.regplot(x='x',y='y',data = stdf,fit_reg=False,scatter_kws = {'s':60},ax=ax)
 sns.regplot(x='x',y='y',data = eqdf,fit_reg=False,scatter_kws = {'s':30},ax=ax,color='r')
 
-# Number of iterations
-
-mname = 'MCMCTest'
 vels = np.array([   3100,   4470,   6200])
 rhos = np.array([2.32,2.55,2.75,2.32,2.55,2.75])
 depths = np.array([ 2000,   4000])
+
+# Number of iterations
+
 N=1
 
 t0 = time.time()

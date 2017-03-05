@@ -7,8 +7,9 @@ from MiscFunctions import DoForwardModel_MyTracer
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from scipy.stats import multivariate_normal,uniform,norm
+from scipy.stats import multivariate_normal,uniform,norm,randint
 from sklearn.externals import joblib        
+from sklearn.decomposition import PCA
 
 
     
@@ -34,6 +35,7 @@ sigma_inv = np.linalg.inv(sigma)
 sigma_det = np.linalg.det(sigma)
 
 sign,log_sigma_det = np.linalg.slogdet(sigma)
+tp_true = tp.copy()
 tp +=norm(loc=0,scale=t_noise).rvs(tp.shape)
 
 # Set up initial model:
@@ -44,8 +46,8 @@ proposal_width_vp = 100 # proposal width of the velocity
 proposal_width_z = 80
 zLayers=np.array([2200,3700])
    # Priors on interfaces and velocities:
-prior_z = uniform(loc=1500,scale=3500)
-prior_vp = uniform(loc=2500,scale=4300)
+prior_z = uniform(loc=1200,scale=5500)
+prior_vp = uniform(loc=2100,scale=5300)
 # model is V1,V2,V3,Z1,Z2 , Ztop =0 and Zbot=7000 are fixed values ( global top and bottom of the model)
 #model =cake.load_model(('MCMCTest.nd')) # <--- True model for the forward simulation.
 
@@ -59,12 +61,23 @@ sim_tp,so = DoForwardModel_MyTracer(eqdf,stdf,vels,depths)
 dr=tp.flatten()-sim_tp.flatten()
 res_norm = np.dot(dr,
                   np.dot(sigma_inv,dr))
+
+dr_true=tp_true.flatten()-tp.flatten()
+
+res_norm_true = np.dot(dr_true,
+                  np.dot(sigma_inv,dr_true))
+
 #returnn
+log_likelihood_true = np.log(1.0/(np.sqrt(2*np.pi)**(Neq*Nst))) - log_sigma_det + (-0.5*res_norm_true)
+returnn
 log_likelihood_current = np.log(1.0/(np.sqrt(2*np.pi)**(Neq*Nst))) - log_sigma_det + (-0.5*res_norm)
 #######################################################################
 k_accept=0
-MCMCiter = 40000
+MCMCiter = 80000
 MCMCiter +=1
+
+# Every NPCA update the covariance
+NPCA=2000
 
 proposed_array=np.zeros((MCMCiter,len(vLayers)+len(zLayers)))
 ar=0.32
@@ -72,7 +85,18 @@ LL=np.zeros(MCMCiter)
 # open the PC component pickle, analyse the widths for the proposal
 filename = 'PCA3Layer.pkl'
 pca_model = joblib.load(filename)
+
+
+
+returnn
+
+
 models = np.zeros((MCMCiter,len(vLayers)+len(zLayers)))
+dr_array =np.zeros((MCMCiter,sim_tp.flatten().shape[0]))
+dm = np.zeros(MCMCiter)
+
+
+PCA_idx_sampler = randint(low=0,high=len(vLayers)+len(zLayers))
 
 frac_of_sigma = 0.15
 for i in range(MCMCiter):
@@ -87,15 +111,8 @@ for i in range(MCMCiter):
 #######################################################################
 # Calculate likelihood here for the proposed move:
 # Calculate the proposed forward model :
-    #if ar>0.4:
-       # proposal_width_vp=proposal_width_vp*1
-       # proposal_width_z=proposal_width_z*1
-       # print ' INcreased the widths !'
-    #elif ar>=0.3:
-       # proposal_width_vp = 100 # proposal width of the velocity
-       # proposal_width_z = 80
-       # print ' The widths are back to normal!'
     #else:
+        
      #   proposal_width_vp=proposal_width_vp*1
       #  proposal_width_z=proposal_width_z*1
        # print ' DEcreased the widths !'
@@ -107,26 +124,39 @@ for i in range(MCMCiter):
     # Express it in the PC axes
     mean_PCA = pca_model.transform(mean.reshape(1,-1)).squeeze()
     #cov = [proposal_width_vp**2]*len(vLayers) + [proposal_width_z**2]*len(zLayers)
-    # Set the covariance of the proposal as a fraction of the eigenvalue
-    cov_PCA = pca_model.explained_variance_ * frac_of_sigma**2
     
-    proposal = multivariate_normal(mean_PCA,cov_PCA)
-    # Sample from the proposal
-    sample_proposed_pca = proposal.rvs()
+    # Pick by random a PC to perturb
+    index_PCA = PCA_idx_sampler.rvs()
+    indexer = np.zeros(len(vLayers)+len(zLayers))
+    indexer[index_PCA] = 1
+    
+    
+    # Set the covariance of the proposal as a fraction of the eigenvalue
+    
+    cov_PCA = pca_model.explained_variance_[index_PCA] * frac_of_sigma**2
+    
+    # Sample the picked PC :
+    proposal = norm(0,cov_PCA).rvs()
+    sample_proposed_pca = mean_PCA + indexer * proposal
     # Transform back to initial axes:
     sample_proposed = pca_model.inverse_transform(sample_proposed_pca.reshape(1,-1)).squeeze()
+    
+    # Sort the depths
+    
     sample_proposed[len(vLayers):]=np.sort(sample_proposed[len(vLayers):]) 
+    
     # SAve for debugging
     proposed_array[i,:]=sample_proposed
     
-    
+        
     proposed_m = sample_proposed
     prior_new=prior_z.pdf(proposed_m[len(vLayers):len(vLayers)+len(zLayers)]).prod()*prior_vp.pdf(proposed_m[0:len(vLayers)]).prod()
     if (prior_new == 0):
         # Zero prior, not moving , adding the old model
         models[i,0:len(vLayers)]=vels
         models[i,len(vLayers):len(vLayers)+len(zLayers)]=depths
-        
+        LL[i] = log_likelihood_current
+
         print 'Zero Prior of the proposed move!'
         continue
     # Convert to np array
@@ -136,14 +166,16 @@ for i in range(MCMCiter):
     depths_new = proposed_m[len(vLayers):]
     
     sim_tp,so = DoForwardModel_MyTracer(eqdf,stdf,vels_new,depths_new)
-    print ' Forward model for %d sample done ' % i
+    #print ' Forward model for %d sample done ' % i
     dr=tp.flatten()-sim_tp.flatten()
+ 
+    dr_array[i,:]=dr
     res_norm = np.dot(dr,
                   np.dot(sigma_inv,dr))
     #  likelihood_proposed = 1.0/(np.sqrt(2*np.pi)**(Neq*Nst/2)*sigma_det)* np.exp(-0.5*res_norm)
     log_likelihood_proposed = np.log(1.0/(np.sqrt(2*np.pi)**(Neq*Nst))) - log_sigma_det + (-0.5*res_norm)
-
-
+    
+  
 
     # Calculate prior probabilities for current_m and proposed_m:
     # current
@@ -169,13 +201,27 @@ for i in range(MCMCiter):
     models[i,0:len(vLayers)]=vels
     models[i,len(vLayers):len(vLayers)+len(zLayers)]=depths
     
-    
     LL[i] = log_likelihood_current
-    if (i % 400) ==0:
-        np.savez('models_PCA.npz',models=models,LL=LL,proposed_array=proposed_array,k_accept=k_accept)
 
-    if i>50:
-        ar=1.0*k_accept/i
+    if (i % NPCA) ==0 and (i>0):
+        np.savez('models_PCA.npz',models=models,LL=LL,proposed_array=proposed_array,k_accept=k_accept,iter=i,dr_array=dr_array,LL_true = log_likelihood_true)
+        ModelMatrix = models[i-NPCA:i]
+        pca_model = PCA().fit(ModelMatrix)
+       
 
-    returnn
+    if i> 50:
+        if ar>0.4:
+            frac_of_sigma=frac_of_sigma*1.1
+        #proposal_width_vp=proposal_width_vp*1
+       # proposal_width_z=proposal_width_z*1
+            print ' Increased the widths !'
+        elif ar<0.2:
+            frac_of_sigma=frac_of_sigma*0.9
+       # proposal_width_vp = 100 # proposal width of the velocity
+       # proposal_width_z = 80
+            print ' Decreased the widths!'
+    
+        ar=1.0*k_accept/(i+1)
+
+    #returnn
 

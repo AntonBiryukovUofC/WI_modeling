@@ -392,7 +392,7 @@ def GetHjVjRhoj(vels = [   3500,   3500,   3500,   3500,   3500,   3500],
     h_diff=depths[ind_layers_above].squeeze()
     #print h_diff
     if ind_layers_above.shape[0]  == 0:
-        print 'Event in the top layer'
+        #print 'Event in the top layer'
         Hj = np.array([source_depth])
         Vj= np.array([vels[0]])
         rhoj= np.array([rhos[0]])
