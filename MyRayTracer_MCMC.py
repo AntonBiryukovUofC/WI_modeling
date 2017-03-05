@@ -76,7 +76,7 @@ MCMCiter = 80000
 MCMCiter +=1
 
 # Every NPCA update the covariance
-NPCA=2000
+NPCA=1000
 
 proposed_array=np.zeros((MCMCiter,len(vLayers)+len(zLayers)))
 ar=0.32
@@ -214,13 +214,13 @@ for i in range(MCMCiter):
     
     LL[i] = log_likelihood_current
 
-    if (i % NPCA) ==0 and (i>0):
+    if (i % (2*NPCA)) ==0 and (i>0):
         np.savez('models_PCA.npz',models=models,LL=LL,proposed_array=proposed_array,k_accept=k_accept,iter=i,dr_array=dr_array,LL_true = log_likelihood_true,tp_array=tp_array)
         ModelMatrix = models[i-NPCA:i]
         pca_model = PCA().fit(ModelMatrix)
        
 
-    if i> 50:
+    if i> 50 and i> NPCA:
         ar=1.0*k_accept/(i)
 
         if ar>0.4:
