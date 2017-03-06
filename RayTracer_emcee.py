@@ -88,7 +88,11 @@ priors = [prior_z,prior_vp]
 sampler = emcee.EnsembleSampler(nwalkers, ndim, logprob, args=(x,tp, sigma_inv,log_sigma_det,nLayers,priors)) 
 sampler.run_mcmc(init_pos, 500)
 
+samples = sampler.chain[:, 50:, :].reshape((-1, ndim))
 
+import corner
+fig = corner.corner(samples, labels=["V1", "V2", "V3","Z1","Z2"],
+                      truths= [3100,4470,6200,2000,4000])
 
 
     
