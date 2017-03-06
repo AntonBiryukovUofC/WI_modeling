@@ -25,7 +25,7 @@ def loglike(theta, x, tp, sigma_inv,log_sigma_det,nLayers):
     Nst=stdf.shape[0]
     vels_new = theta[0:nLayers]
     dz = theta[nLayers:nLayers+nLayers-1]
-    depths_new = np.array([dz[0],dz[0]+dz[1]])
+    depths_new = np.cumsum(dz)
     #print vels_new
     #print depths_new
     print 'Forward Model called '
