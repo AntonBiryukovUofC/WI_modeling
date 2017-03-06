@@ -87,8 +87,8 @@ ModelMatrix = ModelMatrix[range(0,ModelMatrix.shape[0],kthin),:]
 # Plot velocity profiles:
 z3=9000
 lines_col=[]
-Nd=50
-Nv=300
+Nd=100
+Nv=100
 profiles = np.zeros((Nd,ModelsDF.shape[0]))
 velocities = np.linspace(800,7500,Nv)
 depth_for_profile = np.linspace(0,8000,Nd)
@@ -116,7 +116,7 @@ X,Y=np.meshgrid(velocities,depth_for_profile)
 fig2,ax_vel = pl.subplots(figsize=(6,8),ncols=2)
 ax2=ax_vel[0]
 ax3=ax_vel[1]
-ax2.pcolormesh(X,Y,hists,vmin=0,vmax=hists.max()/6)
+ax2.pcolormesh(X,Y,hists,vmin=0,vmax=hists.max()/2)
 ax2.set_ylim((-0.1,8000))
 ax2.set_xlim((500,8000))
 
@@ -162,7 +162,7 @@ fig_data.savefig('DataFit.png')
 
                                 
 covm=np.corrcoef(ModelMatrix.T)
-plt.imshow(np.abs(covm),vmin=0.5,vmax=1,interpolation='None')
+#plt.imshow(np.abs(covm),vmin=0.5,vmax=1,interpolation='None')
 
 
 returnn

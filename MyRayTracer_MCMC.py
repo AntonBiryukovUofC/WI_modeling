@@ -45,8 +45,9 @@ vLayers=np.array([2700,4200,5700])
 proposal_width_vp = 100 # proposal width of the velocity
 proposal_width_z = 80
 zLayers=np.array([2200,3700])
+thickness = np.array([2200,1500])
    # Priors on interfaces and velocities:
-prior_z = uniform(loc=1200,scale=5500)
+prior_z = uniform(loc=800,scale=5000)
 prior_vp = uniform(loc=2100,scale=5300)
 # model is V1,V2,V3,Z1,Z2 , Ztop =0 and Zbot=7000 are fixed values ( global top and bottom of the model)
 #model =cake.load_model(('MCMCTest.nd')) # <--- True model for the forward simulation.
@@ -54,7 +55,7 @@ prior_vp = uniform(loc=2100,scale=5300)
 
 
 vels = vLayers
-depths=zLayers
+depths=np.cumsum(thickness)
 # Do initial forward model:
 sim_tp,so = DoForwardModel_MyTracer(eqdf,stdf,vels,depths)
 # Calculate its likelihood:
@@ -97,7 +98,7 @@ dm = np.zeros(MCMCiter)
 
 
 PCA_idx_sampler = randint(low=0,high=len(vLayers)+len(zLayers))
-covariances=np.zeros((80000/25,25))
+#covariances=np.zeros((80000/25,25))
 frac_of_sigma = 1.2
 k_pca=0
 for i in range(MCMCiter):
@@ -124,7 +125,7 @@ for i in range(MCMCiter):
        
     if i >1*NPCA+10:   
         # Get the current mean of the proposal.
-        mean = np.hstack((vels,depths))
+        mean = np.hstack((vels,thickness))
         # Express it in the PC axes
         mean_PCA = pca_model.transform(mean.reshape(1,-1)).squeeze()
         #cov = [proposal_width_vp**2]*len(vLayers) + [proposal_width_z**2]*len(zLayers)
@@ -146,7 +147,7 @@ for i in range(MCMCiter):
         sample_proposed = pca_model.inverse_transform(sample_proposed_pca.reshape(1,-1)).squeeze()
     else:
         #print 'Sampling from non-PCA..'
-        mean = list(vels) + list(depths)
+        mean = list(vels) + list(thickness)
         cov = [proposal_width_vp**2]*3 + [proposal_width_z**2]*2
         sample_proposed = multivariate_normal(mean,cov).rvs()
 
@@ -172,7 +173,10 @@ for i in range(MCMCiter):
   
     # Get a new model for the proposed move.
     vels_new = proposed_m[0:len(vLayers)]
-    depths_new = proposed_m[len(vLayers):]
+    thickness_new = proposed_m[len(vLayers):]
+    # Leave it like this for now
+    
+    depths_new = np.cumsum(thickness_new)
     
     sim_tp,_ = DoForwardModel_MyTracer(eqdf,stdf,vels_new,depths_new)
     #print ' Forward model for %d sample done ' % i
@@ -189,12 +193,14 @@ for i in range(MCMCiter):
 
     # Calculate prior probabilities for current_m and proposed_m:
     # current
-    prior_cur = prior_z.pdf(depths).prod()*prior_vp.pdf(vels).prod()
+    prior_cur = prior_z.pdf(thickness).prod()*prior_vp.pdf(vels).prod()
     # proposed
     #if Likelihood_turn_off:
      #   log_likelihood_proposed=log_likelihood_current
     # Calculate the probability ratio:
     p_accept = np.log(prior_new)+log_likelihood_proposed - (np.log(prior_cur)+log_likelihood_current)
+    
+    
     #print p_accept
     if np.isnan(p_accept):
         p_accept=-1000
@@ -205,7 +211,7 @@ for i in range(MCMCiter):
         
         vels=vels_new
         depths=depths_new      
-        
+        thickness=thickness_new
         log_likelihood_current = log_likelihood_proposed
     # Add the model into i-th place :
     models[i,0:len(vLayers)]=vels

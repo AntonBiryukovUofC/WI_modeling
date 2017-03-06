@@ -384,14 +384,14 @@ def GetHjVjRhoj(vels ,
                 depths,
                 source_depth):
         
+   # depths = np.array(depths)
+   # vels=np.array(vels)
     
     if source_depth < 0:
         print " Source depth is negative, halted.."
     ind_layers_above = np.argwhere(depths<source_depth).flatten()
-    #print ind_layers_above
-    #print source_depth
     
-    #print h_diff
+    
     if ind_layers_above.shape[0]  == 0:
         #print 'Event in the top layer'
         Hj = np.array([source_depth])
@@ -401,8 +401,11 @@ def GetHjVjRhoj(vels ,
         
         #returnn Hj,Vj
     #print depths
+  #  try:
     h_diff=depths[ind_layers_above[:]].squeeze()
-
+  #  except:
+  #      import pdb
+  #      pdb.set_trace()
     if np.size(h_diff) ==1 :
         Hj=np.hstack([h_diff,source_depth-h_diff  ])
         Vj=vels[0:ind_layers_above.max()+2 ]

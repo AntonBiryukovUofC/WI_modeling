@@ -25,9 +25,9 @@ def loglike(theta, x, tp, sigma_inv,log_sigma_det,nLayers):
     Nst=stdf.shape[0]
     vels_new = theta[0:nLayers]
     dz = theta[nLayers:nLayers+nLayers-1]
-    depths_new = [dz[0],dz[0]+dz[1]]
-    print vels_new
-    print depths_new
+    depths_new = np.array([dz[0],dz[0]+dz[1]])
+    #print vels_new
+    #print depths_new
     print 'Forward Model called '
     sim_tp,_ = DoForwardModel_MyTracer(eqdf,stdf,vels_new,depths_new)
     dr=tp.flatten()-sim_tp.flatten()
