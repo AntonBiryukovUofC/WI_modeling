@@ -379,17 +379,18 @@ def ChangeModel(model,new_m):
     return model
 
 
-def GetHjVjRhoj(vels = [   3500,   3500,   3500,   3500,   3500,   3500],
-                rhos = [2.32,2.55,2.75,2.32,2.55,2.75],
-                depths=[ 2000,   3000,   4000,   5000,   6000],
-                source_depth = 100):
+def GetHjVjRhoj(vels ,
+                rhos ,
+                depths,
+                source_depth):
         
+    
     if source_depth < 0:
         print " Source depth is negative, halted.."
-    
-    ind_layers_above = np.argwhere(depths<source_depth)
+    ind_layers_above = np.argwhere(depths<source_depth).flatten()
     #print ind_layers_above
-    h_diff=depths[ind_layers_above].squeeze()
+    #print source_depth
+    
     #print h_diff
     if ind_layers_above.shape[0]  == 0:
         #print 'Event in the top layer'
@@ -399,8 +400,10 @@ def GetHjVjRhoj(vels = [   3500,   3500,   3500,   3500,   3500,   3500],
         return Hj,Vj, rhoj
         
         #returnn Hj,Vj
-        
-    elif np.size(h_diff) ==1 :
+    #print depths
+    h_diff=depths[ind_layers_above[:]].squeeze()
+
+    if np.size(h_diff) ==1 :
         Hj=np.hstack([h_diff,source_depth-h_diff  ])
         Vj=vels[0:ind_layers_above.max()+2 ]
         rhoj = rhos[0:ind_layers_above.max()+2 ]

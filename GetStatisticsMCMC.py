@@ -17,6 +17,7 @@ from scipy.stats import multivariate_normal,uniform,norm
 import time
 import matplotlib.collections as mc
         
+
 #######################################################################
 np.random.seed(1) # set the seed
 # Load the data which will be fitted 
@@ -27,7 +28,7 @@ eqdf = pd.DataFrame(data=eqdf,columns=['x','y','z'])
 stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
 
 model_file = np.load('models_PCA.npz')
-burn_in = 0
+burn_in = 100
 
 models=model_file['models']
 FinalIter = model_file['iter']
@@ -72,7 +73,7 @@ InvModel = pca_model.inverse_transform(NewModelMatrix)
 filename = 'PCA3Layer.pkl'
 _ = joblib.dump(pca_model, filename, compress=3)
 
-kthin = 10
+kthin = 2
 
 dr_array = model_file['dr_array'][range(0,ModelMatrix.shape[0],kthin)]
 noise_std = np.apply_along_axis(np.std,1,dr_array)
@@ -141,22 +142,27 @@ fig4.savefig('TimeHistoryChain.png')
 
 # Plot the datafit:
 fig_data,ax_data = plt.subplots(figsize = (24,10))
+ind_ordered = np.argsort(tp.flatten())
 
-for i in range(tp_array.shape[1]):
+for ii,i in enumerate(ind_ordered):
     tp_slice = tp_array[:,i]
     tp_slice=tp_slice[(~np.isnan(tp_slice)) & (tp_slice > 0) ]
     hist_data,bins = np.histogram(tp_slice,bins = 150,normed=True)
     hist_data = np.vstack((hist_data,hist_data)).T
     bins = (bins[0:-1]+bins[1:])/2.0
 
-    x,y = np.meshgrid([i-0.25,i+0.25],bins)
-    ax_data.pcolormesh(x,y,hist_data,vmin=0,vmax=hist_data.max(),cmap=cm.jet,shading='gouraud')
-    ax_data.scatter(i,tp.flatten()[i],c='k',s=30)
+    x,y = np.meshgrid([ii-0.45,ii+0.45],bins)
+    ax_data.pcolormesh(x,y,hist_data,vmin=0,vmax=hist_data.max(),cmap=cm.jet,shading='gouraud',edgecolor=None)
+    ax_data.scatter(ii,tp.flatten()[i],c='k',s=30)
 ax_data.set_xlim([0,np.size(tp)])
 ax_data.set_ylim([0.9,2.1])
 
 fig_data.savefig('DataFit.png')
   
+
+                                
+covm=np.corrcoef(ModelMatrix.T)
+plt.imshow(np.abs(covm),vmin=0.5,vmax=1,interpolation='None')
 
 
 returnn

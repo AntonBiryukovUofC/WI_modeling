@@ -10,7 +10,7 @@ import seaborn as sns
 from scipy.stats import multivariate_normal,uniform,norm,randint
 from sklearn.externals import joblib        
 from sklearn.decomposition import PCA
-
+from scipy.linalg import svd
 
     
 
@@ -76,7 +76,7 @@ MCMCiter = 80000
 MCMCiter +=1
 
 # Every NPCA update the covariance
-NPCA=1000
+NPCA=500
 
 proposed_array=np.zeros((MCMCiter,len(vLayers)+len(zLayers)))
 ar=0.32
@@ -97,8 +97,9 @@ dm = np.zeros(MCMCiter)
 
 
 PCA_idx_sampler = randint(low=0,high=len(vLayers)+len(zLayers))
-
-frac_of_sigma = 0.15
+covariances=np.zeros((80000/25,25))
+frac_of_sigma = 1.2
+k_pca=0
 for i in range(MCMCiter):
 #######################################################################
 # Set up the distributions:
@@ -136,10 +137,10 @@ for i in range(MCMCiter):
         
         # Set the covariance of the proposal as a fraction of the eigenvalue
         
-        cov_PCA = pca_model.explained_variance_[index_PCA] * frac_of_sigma**2
+        cov_PCA = pca_model.explained_variance_[index_PCA] * frac_of_sigma
         
         # Sample the picked PC :
-        proposal = norm(0,cov_PCA).rvs()
+        proposal = norm(0,np.sqrt(cov_PCA)).rvs()
         sample_proposed_pca = mean_PCA + indexer * proposal
         # Transform back to initial axes:
         sample_proposed = pca_model.inverse_transform(sample_proposed_pca.reshape(1,-1)).squeeze()
@@ -194,14 +195,14 @@ for i in range(MCMCiter):
      #   log_likelihood_proposed=log_likelihood_current
     # Calculate the probability ratio:
     p_accept = np.log(prior_new)+log_likelihood_proposed - (np.log(prior_cur)+log_likelihood_current)
-    print p_accept
+    #print p_accept
     if np.isnan(p_accept):
         p_accept=-1000
     accept = ( (np.log(np.random.rand()) - p_accept) <= 0 )
     if accept:
         # We update the position
         k_accept+=1
-        print ' Proposal accepted %d out of %d ' %(k_accept,i)
+        
         vels=vels_new
         depths=depths_new      
         
@@ -212,12 +213,26 @@ for i in range(MCMCiter):
     
     LL[i] = log_likelihood_current
 
-    if (i % (2*NPCA)) ==0 and (i>0):
+    if (i % (NPCA)) ==0 and (i>0):
+        
         np.savez('models_PCA.npz',models=models,LL=LL,proposed_array=proposed_array,k_accept=k_accept,iter=i,dr_array=dr_array,LL_true = log_likelihood_true,tp_array=tp_array)
-        ModelMatrix = models[i-NPCA:i]
-        pca_model = PCA().fit(ModelMatrix)
-       
-
+        
+        
+        
+        ModelMatrix = models[0:i]
+        pca_model = PCA(svd_solver='full').fit(ModelMatrix)
+       # covariances[k_pca,:] =pca_model.get_covariance().flatten()
+        #AA = np.cov(ModelMatrix.T)
+        
+        
+        
+        
+        
+        
+        
+        k_pca+=1
+    if (k_accept % 50 ) ==0 :
+            print ' Proposal accepted %d out of %d ' %(k_accept,i)
     #if i> 50 and i> NPCA:
      #   ar=1.0*k_accept/(i)
 
