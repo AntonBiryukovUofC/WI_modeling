@@ -73,7 +73,7 @@ InvModel = pca_model.inverse_transform(NewModelMatrix)
 filename = 'PCA3Layer.pkl'
 _ = joblib.dump(pca_model, filename, compress=3)
 
-kthin = 2
+kthin = 10
 
 dr_array = model_file['dr_array'][range(0,ModelMatrix.shape[0],kthin)]
 noise_std = np.apply_along_axis(np.std,1,dr_array)
@@ -153,7 +153,8 @@ for ii,i in enumerate(ind_ordered):
 
     x,y = np.meshgrid([ii-0.45,ii+0.45],bins)
     ax_data.pcolormesh(x,y,hist_data,vmin=0,vmax=hist_data.max(),cmap=cm.jet,shading='gouraud',edgecolor=None)
-    ax_data.scatter(ii,tp.flatten()[i],c='k',s=30)
+    
+    ax_data.errorbar(ii,tp.flatten()[i],yerr=0.08,c='white',markeredgecolor='k', fmt='o', ecolor='g', capthick=2)
 ax_data.set_xlim([0,np.size(tp)])
 ax_data.set_ylim([0.9,2.1])
 
@@ -163,7 +164,8 @@ fig_data.savefig('DataFit.png')
                                 
 covm=np.corrcoef(ModelMatrix.T)
 #plt.imshow(np.abs(covm),vmin=0.5,vmax=1,interpolation='None')
-
+import corner
+fig_c = corner.corner(ModelMatrix,labels= ['V1','V2','V3','Z1','Z2'],truths = true_vals)
 
 returnn
 
