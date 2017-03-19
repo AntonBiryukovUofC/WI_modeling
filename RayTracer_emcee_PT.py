@@ -56,7 +56,6 @@ stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
 
 # Noise on the arrivals :
 # Apply this noise on data:                
-t_noise = 0.08
 Neq=tp.shape[0]
 Nst=tp.shape[1]
 
@@ -70,22 +69,40 @@ prior_vp = uniform(loc=2100,scale=5300)
 
 
 # Data noise
-t_noise=0.08
+t_noise=0.05
 sigma=np.diag([t_noise**2]*Neq*Nst)
 sigma_inv = np.linalg.inv(sigma)
 sigma_det = np.linalg.det(sigma)
 
+tp+=norm(loc=0,scale=t_noise).rvs(tp.shape)
+
 sign,log_sigma_det = np.linalg.slogdet(sigma)
 nwalkers = 12
 ndim=5
+ntemps=10
 x=[eqdf,stdf]
 nLayers=3
 
 # Set up initial model:
+#init_theta = np.random.uniform(low=-1.0, high=1.0, size=(ntemps, nwalkers, ndim))
 init_theta=np.array([2700,4200,5700,2200,3700])
-init_pos = [init_theta + 100*np.random.randn(ndim) for i in range(nwalkers)]
+noise_model = np.random.uniform(low=0, high=100, size=(ntemps, nwalkers, ndim))
+
+
+init_pos =  np.tile(init_theta,(ntemps,nwalkers,1)) + noise_model
+
+
+
 priors = [prior_z,prior_vp]
-sampler = emcee.EnsembleSampler(nwalkers, ndim, logprob, args=(x,tp, sigma_inv,log_sigma_det,nLayers,priors)) 
+
+
+#sampler = emcee.PTSampler(nwalkers, ndim, logprob, args=(x,tp, sigma_inv,log_sigma_det,nLayers,priors)) 
+
+sampler = PTSampler(ntemps,nwalkers,ndim,logl = loglike,logp=logprior,
+                    logpargs= (prior_z,prior_vp,nLayers),
+                    loglargs = (x,tp, sigma_inv,log_sigma_det,nLayers)
+                    
+                    )
 sampler.run_mcmc(init_pos, 500)
 
 samples = sampler.chain[:, 50:, :].reshape((-1, ndim))
@@ -93,6 +110,19 @@ samples = sampler.chain[:, 50:, :].reshape((-1, ndim))
 import corner
 fig = corner.corner(samples, labels=["V1", "V2", "V3","Z1","Z2"],
                       truths= [3100,4470,6200,2000,2000])
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     

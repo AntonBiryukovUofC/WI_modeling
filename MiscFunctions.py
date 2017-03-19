@@ -425,6 +425,10 @@ def GetHjVjRhoj(vels ,
     else:
         return Hj,Vj, rhoj
 def costFunc(x,H,V,R):
+  #      a = 1-(x**2)*V**2
+ #       if np.any(a < 0 ):
+#            np.savez('temp.npz',H=H,V=V,R=R,x=x,a=a)
+          #  pdb.set_trace()
         sum_term = H*V*x/np.sqrt(1-(x**2)*V**2);
         return R - sum(sum_term);
 def CalculatePTime(vels = [   3500,   3500,   3500,   3500,   3500,   3500],
