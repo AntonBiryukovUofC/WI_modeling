@@ -11,6 +11,7 @@ def logprior(theta,prior_z,prior_vp,nLayers):
 
     prior = prior_z.pdf(theta[nLayers:nLayers+nLayers-1]).prod() * \
             prior_vp.pdf(theta[0:nLayers]).prod()
+            
     return np.log(prior)
 
 
@@ -77,16 +78,17 @@ sigma_det = np.linalg.det(sigma)
 tp+=norm(loc=0,scale=t_noise).rvs(tp.shape)
 
 sign,log_sigma_det = np.linalg.slogdet(sigma)
-nwalkers = 12
+nwalkers = 10
 ndim=5
-ntemps=10
+ntemps=5
 x=[eqdf,stdf]
 nLayers=3
 
 # Set up initial model:
 #init_theta = np.random.uniform(low=-1.0, high=1.0, size=(ntemps, nwalkers, ndim))
-init_theta=np.array([2700,4200,5700,2200,3700])
-noise_model = np.random.uniform(low=0, high=100, size=(ntemps, nwalkers, ndim))
+init_theta=init_theta=np.array([2700,4200,5700,2200,2000])
+
+noise_model = np.random.uniform(low=0, high=200, size=(ntemps, nwalkers, ndim))
 
 
 init_pos =  np.tile(init_theta,(ntemps,nwalkers,1)) + noise_model
@@ -100,15 +102,22 @@ priors = [prior_z,prior_vp]
 
 sampler = PTSampler(ntemps,nwalkers,ndim,logl = loglike,logp=logprior,
                     logpargs= (prior_z,prior_vp,nLayers),
-                    loglargs = (x,tp, sigma_inv,log_sigma_det,nLayers)
+                    loglargs = (x,tp, sigma_inv,log_sigma_det,nLayers),
+                    threads = 6
                     
                     )
-sampler.run_mcmc(init_pos, 500)
+sampler.run_mcmc(init_pos, 6500)
 
-samples = sampler.chain[:, 50:, :].reshape((-1, ndim))
+#samples = sampler.chain[:, 50:, :].reshape((-1, ndim))
 
+samples = sampler.chain[0,...].reshape((-1, ndim))
+
+samples_info = [samples,sampler.chain,sampler.betas,sampler.lnlikelihood,sampler.nswap,
+                sampler.nswap_accepted,sampler.acceptance_fraction
+                ]
+pickle.dump( samples_info, open( "samplerMCMC_PT_emcee.p", "wb" ))
 import corner
-fig = corner.corner(samples, labels=["V1", "V2", "V3","Z1","Z2"],
+fig = corner.corner(samples[5000:,:], labels=["V1", "V2", "V3","Z1","Z2"],
                       truths= [3100,4470,6200,2000,2000])
 
 

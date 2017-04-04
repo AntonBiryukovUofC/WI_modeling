@@ -27,7 +27,7 @@ stdf = pd.DataFrame(data=stdf,columns=['x','y','z'])
 
 # Noise on the arrivals :
 # Apply this noise on data:                
-t_noise = 0.08
+t_noise = 0.05
 Neq=tp.shape[0]
 Nst=tp.shape[1]
 sigma=np.diag([t_noise**2]*Neq*Nst)
@@ -75,7 +75,7 @@ log_likelihood_current = np.log(1.0/(np.sqrt(2*np.pi)**(Neq*Nst))) - log_sigma_d
 k_accept=0
 MCMCiter = 80000
 MCMCiter +=1
-
+returnn
 # Every NPCA update the covariance
 NPCA=500
 
